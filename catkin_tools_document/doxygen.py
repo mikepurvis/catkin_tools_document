@@ -12,22 +12,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from copy import copy
-
-
-def write(f, overrides):
-    fields = copy(base_config)
-    fields.update(overrides)
-
-    lines = []
-    for k, v in fields.items():
-        if isinstance(v, bool):
-            v = "YES" if v else "NO"
-        f.write("%s = %s\n" % (k, v))
+import copy
+import os
 
 
-base_config = {
+def generate_doxygen_config(logger, event_queue, conf, package, output_path, source_path, docs_build_path):
+    header_filename = ''
+    footer_filename = ''
+    sub_dir = conf.get('output_dir', 'html')
+    output_dir = os.path.join(output_path, sub_dir)
+    tagfile_path = os.path.join(output_path, 'tags')
+
+    # This is a token to let dependent packages know what the subdirectory name is for linking
+    # to this package's doxygen docs (since it isn't always "html").
+    with open(os.path.join(output_path, 'subdir'), 'w') as f:
+        f.write(sub_dir)
+
+    # Link up doxygen for all in-workspace build dependencies.
+    build_depends_names = [dep.name for dep in package.build_depends]
+    tagfiles = []
+    for build_depend_name in build_depends_names:
+        depend_docs_tagfile = os.path.join(output_path, '..', build_depend_name, 'tags')
+        if os.path.exists(depend_docs_tagfile):
+            with open(os.path.join(output_path, '..', build_depend_name, 'subdir')) as f:
+                subdir = f.read()
+            tagfiles.append('%s=%s' % (depend_docs_tagfile, '../../%s/%s' % (build_depend_name, subdir)))
+
+    doxyfile_conf = copy.copy(_base_config)
+    doxyfile_conf.update({
+        'ALIASES': conf.get('aliases', ''),
+        'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
+        'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
+        'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
+        'HTML_FOOTER': footer_filename,
+        'HTML_HEADER': header_filename,
+        'HTML_OUTPUT': output_dir,
+        'IMAGE_PATH': conf.get('image_path', source_path),
+        'INPUT': source_path,
+        'PROJECT_NAME': package.name,
+        'OUTPUT_DIRECTORY': output_path,
+        'TAB_SIZE': conf.get('tab_size', '8'),
+        'GENERATE_TAGFILE': tagfile_path,
+        'TAGFILES': ' '.join(tagfiles)
+    })
+
+    with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
+        lines = []
+        for k, v in doxyfile_conf.items():
+            if isinstance(v, bool):
+                v = "YES" if v else "NO"
+            f.write("%s = %s\n" % (k, v))
+    return 0
+
+
+_base_config = {
     'DOXYFILE_ENCODING': 'UTF-8',
     'CREATE_SUBDIRS': False,
     'OUTPUT_LANGUAGE': 'English',
@@ -146,5 +184,6 @@ base_config = {
     'GRAPHICAL_HIERARCHY': True,
     'DIRECTORY_GRAPH': True,
     'JAVADOC_AUTOBRIEF': False,
-    'MULTILINE_CPP_IS_BRIEF': False
+    'MULTILINE_CPP_IS_BRIEF': False,
+    'GENERATE_LATEX': False
 }

@@ -13,59 +13,63 @@
 # limitations under the License.
 
 import os
+import sys
+from copy import copy
 
 from catkin_tools.common import mkdir_p
 from catkin_tools.execution.stages import CommandStage
+from catkin_tools.execution.stages import FunctionStage
 
-import doxyfile
+from doxygen import generate_doxygen_config
 
 
 def doxygen(conf, package, output_path, source_path, docs_build_path):
-    header_filename = ''
-    footer_filename = ''
-    tagfiles = ''
-    output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
-    tagfile_path = os.path.join(output_path, '%s.tag' % package.name)
-
-    doxyfile_conf = {
-        'ALIASES': conf.get('aliases', ''),
-        'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
-        'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
-        'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
-        'HTML_FOOTER': footer_filename,
-        'HTML_HEADER': header_filename,
-        'HTML_OUTPUT': output_dir,
-        'IMAGE_PATH': conf.get('image_path', source_path),
-        'INPUT': source_path,
-        'PROJECT_NAME': package.name,
-        'OUTPUT_DIRECTORY': output_path,
-        'TAB_SIZE': conf.get('tab_size', '8'),
-        'GENERATE_TAGFILE': tagfile_path,
-        'TAGFILES': tagfiles
-    }
-    mkdir_p(docs_build_path)
-    doxyfile_path = os.path.join(docs_build_path, 'Doxyfile')
-    with open(doxyfile_path, 'w') as f:
-        doxyfile.write(f, doxyfile_conf)
-
-    return CommandStage(
+    stages = []
+    stages.append(FunctionStage(
+        'generate_doxygen_config', generate_doxygen_config,
+        conf=conf,
+        package=package,
+        output_path=output_path,
+        source_path=source_path,
+        docs_build_path=docs_build_path))
+    stages.append(CommandStage(
         'rosdoc_doxygen',
-        ['/usr/local/bin/doxygen', doxyfile_path],
-        cwd=source_path
-    )
+        ['/usr/local/bin/doxygen', os.path.join(docs_build_path, 'Doxyfile')],
+        cwd=source_path))
+    return stages
 
 def sphinx(conf, package, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
 
-    return CommandStage(
+    env = {'PYTHONPATH': ':'.join(sys.path)}
+    return [CommandStage(
         'rosdoc_sphinx',
         ['/usr/local/bin/sphinx-build', '-E', '.', output_dir],
-        cwd=root_dir
-    )
+        cwd=root_dir,
+        env=env
+    )]
 
-def epydoc():
-    raise NotImplementedError
+def epydoc(conf, package, output_path, source_path, docs_build_path):
+    output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
+
+    command = ['/usr/local/bin/epydoc', '--html', package.name, '-o', output_dir]
+    for s in conf.get('exclude', []):
+        command.extend(['--exclude', s])
+
+    if 'config' in conf:
+        command.extend(['--config', os.path.join(source_path, conf['config'])])
+    else:
+        # default options
+        command.extend(['--inheritance', 'included', '--no-private'])
+
+    env = {'PYTHONPATH': ':'.join(sys.path)}
+    return [CommandStage(
+        'rosdoc_epydoc',
+        command,
+        cwd=source_path,
+        env=env
+    )]
 
 def jsdoc():
     raise NotImplementedError

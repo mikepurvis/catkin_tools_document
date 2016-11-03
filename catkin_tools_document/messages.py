@@ -51,7 +51,7 @@ def generate_package_summary(logger, event_queue, package, package_path,
     with open(os.path.join(output_path, 'conf.py'), 'w') as f:
         f.write('project = %s\n' % repr(package.name))
         f.write('copyright = "Clearpath Robotics"\n')
-        f.write('author = %s\n' % repr(', '.join(package.authors)))
+        f.write('author = %s\n' % repr(', '.join([person.name for person in package.authors])))
 
         f.write("version = %s\n" % repr(package.version))
         f.write("release = %s\n" % repr(package.version))
@@ -90,13 +90,15 @@ templates_path = []
             f.write("    srv/*\n")
         if os.path.exists(os.path.join(output_path, 'action')):
             f.write("    action/*\n")
-        if os.path.exists(os.path.join(output_path, 'CHANGELOG.rst')):
+
+        changelog_path = os.path.join(package_path, 'CHANGELOG.rst')
+        changelog_symlink_path = os.path.join(output_path, 'CHANGELOG.rst')
+        if os.path.exists(changelog_path) and not os.path.exists(changelog_symlink_path):
+            os.symlink(changelog_path, changelog_symlink_path)
+
+        if os.path.exists(changelog_symlink_path):
             f.write("    CHANGELOG\n")
 
-    changelog_path = os.path.join(package_path, 'CHANGELOG.rst')
-    changelog_symlink_path = os.path.join(output_path, 'CHANGELOG.rst')
-    if os.path.exists(changelog_path) and not os.path.exists(changelog_symlink_path):
-        os.symlink(changelog_path, changelog_symlink_path)
 
     return 0
 
