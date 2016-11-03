@@ -24,31 +24,34 @@ from doxygen import generate_doxygen_config
 
 
 def doxygen(conf, package, output_path, source_path, docs_build_path):
-    stages = []
-    stages.append(FunctionStage(
-        'generate_doxygen_config', generate_doxygen_config,
-        conf=conf,
-        package=package,
-        output_path=output_path,
-        source_path=source_path,
-        docs_build_path=docs_build_path))
-    stages.append(CommandStage(
-        'rosdoc_doxygen',
-        ['/usr/local/bin/doxygen', os.path.join(docs_build_path, 'Doxyfile')],
-        cwd=source_path))
-    return stages
+    return [
+        FunctionStage(
+            'generate_doxygen_config', generate_doxygen_config,
+            conf=conf,
+            package=package,
+            output_path=output_path,
+            source_path=source_path,
+            docs_build_path=docs_build_path),
+        CommandStage(
+            'rosdoc_doxygen',
+            ['/usr/local/bin/doxygen', os.path.join(docs_build_path, 'Doxyfile')],
+            cwd=source_path)
+    ]
+
 
 def sphinx(conf, package, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
 
     env = {'PYTHONPATH': ':'.join(sys.path)}
-    return [CommandStage(
-        'rosdoc_sphinx',
-        ['/usr/local/bin/sphinx-build', '-E', '.', output_dir],
-        cwd=root_dir,
-        env=env
-    )]
+    return [
+        CommandStage(
+            'rosdoc_sphinx',
+            ['/usr/local/bin/sphinx-build', '-E', '.', output_dir],
+            cwd=root_dir,
+            env=env)
+    ]
+
 
 def epydoc(conf, package, output_path, source_path, docs_build_path):
     output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
@@ -64,15 +67,18 @@ def epydoc(conf, package, output_path, source_path, docs_build_path):
         command.extend(['--inheritance', 'included', '--no-private'])
 
     env = {'PYTHONPATH': ':'.join(sys.path)}
-    return [CommandStage(
-        'rosdoc_epydoc',
-        command,
-        cwd=source_path,
-        env=env
-    )]
+    return [
+        CommandStage(
+            'rosdoc_epydoc',
+            command,
+            cwd=source_path,
+            env=env)
+    ]
+
 
 def jsdoc():
     raise NotImplementedError
+
 
 def swagger():
     raise NotImplementedError

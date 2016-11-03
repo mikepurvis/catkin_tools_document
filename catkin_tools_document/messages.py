@@ -18,31 +18,87 @@ import re
 from catkin_tools.common import mkdir_p
 
 
+def _write_raw(f, msg_type):
+    msg_text = re.split('^=+$', msg_type._full_text, maxsplit=1, flags=re.MULTILINE)[0]
+    msg_text = re.sub('^(.*?)$', '    \\1', msg_text, flags=re.MULTILINE)
+    f.write(msg_text)
+    f.write('\n')
 
-def generate_messages(logger, event_queue, package, output_path):
+
+def generate_messages(logger, event_queue, package, package_path, output_path):
     try:
-        package_module = __import__(package.name + '.msg')
+        msg_module = __import__(package.name + '.msg').msg
+        msg_names = [ msg_name for msg_name in dir(msg_module)
+                      if re.match('^[A-Z]', msg_name) ]
     except ImportError:
-        # No messages in this package, that's cool.
-        return 0
+        msg_names = []
 
-    mkdir_p(os.path.join(output_path, 'msg'))
-    msg_names = [ msg_name for msg_name in dir(package_module.msg)
-                  if re.match('^[A-Z]', msg_name) ]
-    for msg_name in msg_names:
-        msg_type = getattr(package_module.msg, msg_name)
-        with open(os.path.join(output_path, 'msg', '%s.rst' % msg_name), 'w') as f:
-            f.write('%s/%s.msg\n' % (package.name, msg_name))
-            f.write('=' * (len(msg_name) + len(package.name) + 5) + '\n\n')
-            f.write('Raw definition::\n\n')
+    if msg_names:
+        with open(os.path.join(output_path, 'messages.rst'), 'w') as f:
+            f.write('Messages\n')
+            f.write('========\n')
+            f.write("""
+            .. toctree::
+                :titlesonly:
+                :glob:
 
-            msg_text = re.split('^=+$', msg_type._full_text, maxsplit=1, flags=re.MULTILINE)[0]
-            msg_text = re.sub('^(.*?)$', '    \\1', msg_text, flags=re.MULTILINE)
-            f.write(msg_text)
+                msg/*
+            """)
 
-            # f.write('.. rst-class:: msg\n\n')
+        mkdir_p(os.path.join(output_path, 'msg'))
+        for msg_name in msg_names:
+            msg_type = getattr(msg_module, msg_name)
+            with open(os.path.join(output_path, 'msg', '%s.rst' % msg_name), 'w') as f:
+                f.write('%s\n' % msg_name)
+                f.write('=' * (len(msg_name) + len(package.name) + 5) + '\n\n')
+                f.write('Definition::\n\n')
+                _write_raw(f, msg_type)
 
     return 0
+
+
+def generate_services(logger, event_queue, package, package_path, output_path):
+    try:
+        srv_module = __import__(package.name + '.srv').srv
+        srv_names = [ srv_name for srv_name in dir(srv_module)
+                      if re.match('^[A-Z]', srv_name) ]
+    except ImportError:
+        srv_names = []
+
+    if srv_names:
+        with open(os.path.join(output_path, 'services.rst'), 'w') as f:
+            f.write('Services\n')
+            f.write('========\n')
+            f.write("""
+            .. toctree::
+                :titlesonly:
+                :glob:
+
+                srv/*
+            """)
+
+        mkdir_p(os.path.join(output_path, 'srv'))
+        for srv_name in srv_names:
+            srv_type = getattr(srv_module, srv_name)
+            if hasattr(srv_type, '_request_class'):
+                with open(os.path.join(output_path, 'srv', '%s.rst' % srv_name), 'w') as f:
+                    f.write('%s\n' % srv_name)
+                    f.write('=' * 50 + '\n\n')
+                    f.write('Request Definition::\n\n')
+                    _write_raw(f, srv_type._request_class)
+                    f.write('Response Definition::\n\n')
+                    _write_raw(f, srv_type._response_class)
+    return 0
+
+
+def _get_person_links(people):
+    person_links = []
+    for person in people:
+        if person.email:
+            person_links.append("`%s <mailto:%s>`_" % (person.name, person.email))
+        else:
+            person_links.append(person.name)
+    return person_links
 
 
 def generate_package_summary(logger, event_queue, package, package_path,
@@ -58,7 +114,7 @@ def generate_package_summary(logger, event_queue, package, package_path,
 
         f.write("""
 master_doc = 'index'
-html_theme = 'traditional'
+html_theme = 'agogo'
 
 templates_path = []
 
@@ -69,11 +125,14 @@ templates_path = []
 
     with open(os.path.join(output_path, 'index.rst'), 'w') as f:
         f.write('%s\n' % package.name)
-        f.write('=' * len(package.name) + '\n\n')
+        f.write('=' * 50 + '\n\n')
+
+        f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
+        f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))
+
         f.write("""
 .. toctree::
     :titlesonly:
-    :glob:
 
 """)
         for conf in rosdoc_conf:
@@ -84,12 +143,12 @@ templates_path = []
                 g.write("API Docs (%s)\n" % conf['builder'])
                 g.write('=' * (len(conf['builder']) + 11) + '\n')
 
-        if os.path.exists(os.path.join(output_path, 'msg')):
-            f.write("    msg/*\n")
-        if os.path.exists(os.path.join(output_path, 'srv')):
-            f.write("    srv/*\n")
-        if os.path.exists(os.path.join(output_path, 'action')):
-            f.write("    action/*\n")
+        if os.path.exists(os.path.join(output_path, 'messages.rst')):
+            f.write("    messages\n")
+        if os.path.exists(os.path.join(output_path, 'services.rst')):
+            f.write("    services\n")
+        if os.path.exists(os.path.join(output_path, 'actions.rst')):
+            f.write("    actions\n")
 
         changelog_path = os.path.join(package_path, 'CHANGELOG.rst')
         changelog_symlink_path = os.path.join(output_path, 'CHANGELOG.rst')
@@ -97,7 +156,7 @@ templates_path = []
             os.symlink(changelog_path, changelog_symlink_path)
 
         if os.path.exists(changelog_symlink_path):
-            f.write("    CHANGELOG\n")
+            f.write("    Changelog <CHANGELOG>\n")
 
 
     return 0

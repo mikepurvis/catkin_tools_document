@@ -47,6 +47,7 @@ from catkin_tools.verbs.catkin_build.build import verify_start_with_option
 
 from catkin_tools_document import builders
 from .messages import generate_messages
+from .messages import generate_services
 from .messages import generate_package_summary
 
 
@@ -71,7 +72,11 @@ def create_job(context, package, package_path, deps):
 
     # Generate msg/srv/action docs with package summary page.
     stages.append(FunctionStage('generate_messages', generate_messages,
-                                package=package, output_path=docs_build_space))
+                                package=package, package_path=package_path,
+                                output_path=docs_build_space))
+    stages.append(FunctionStage('generate_services', generate_services,
+                                package=package, package_path=package_path,
+                                output_path=docs_build_space))
     stages.append(FunctionStage('generate_package_summary', generate_package_summary,
                                 package=package, package_path=package_path_abs,
                                 rosdoc_conf=rosdoc_conf, output_path=docs_build_space))
