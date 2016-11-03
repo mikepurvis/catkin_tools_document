@@ -23,5 +23,11 @@ setup(
         'catkin_tools.commands.catkin.verbs': [
             'document = catkin_tools_document:description',
         ]
-    }
+    },
+    install_requires=[
+        'catkin_pkg',
+        'catkin_tools',
+        'catkin_sphinx',
+        'epydoc',
+        'sphinx']
 )
