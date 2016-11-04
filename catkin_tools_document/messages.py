@@ -112,15 +112,26 @@ def generate_package_summary(logger, event_queue, package, package_path,
         f.write('%s\n' % package.name)
         f.write('=' * 50 + '\n\n')
 
-        f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))
-        f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
+        f.write('.. raw:: html\n\n')
+        f.write('    <p>' + package.description + '</p>\n\n')
 
-        f.write('**API:** ')
-        for conf in rosdoc_conf:
-            rosdoc_output_dir = conf.get('output_dir', 'html')
-            rosdoc_name = conf.get('name', conf['builder'])
-            f.write("`%s <%s/index.html>`_ " % (rosdoc_name, rosdoc_output_dir))
-        f.write('\n\n')
+        if package.maintainers:
+            f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))
+
+        if package.authors:
+            f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
+
+        f.write('**License:** %s\n\n' % ', '.join(package.licenses))
+
+        f.write('**Source:** ? \n\n')
+
+        if rosdoc_conf:
+            f.write('**API:** ')
+            for conf in rosdoc_conf:
+                rosdoc_output_dir = conf.get('output_dir', 'html')
+                rosdoc_name = conf.get('name', conf['builder'])
+                f.write("`%s <%s/index.html>`_ " % (rosdoc_name, rosdoc_output_dir))
+            f.write('\n\n')
 
         f.write("""
 .. toctree::
