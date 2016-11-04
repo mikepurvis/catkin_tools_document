@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 Clearpath Robotics Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,23 +36,23 @@ def generate_messages(logger, event_queue, package, package_path, output_path):
         msg_names = []
 
     if msg_names:
-        with open(os.path.join(output_path, 'messages.rst'), 'w') as f:
-            f.write('Messages\n')
-            f.write('========\n')
+        mkdir_p(os.path.join(output_path, 'msg'))
+        with open(os.path.join(output_path, 'msg/index.rst'), 'w') as f:
+            f.write('%s » Messages\n' % package.name)
+            f.write('=' * 50 + '\n')
             f.write("""
             .. toctree::
                 :titlesonly:
                 :glob:
 
-                msg/*
+                *
             """)
 
-        mkdir_p(os.path.join(output_path, 'msg'))
         for msg_name in msg_names:
             msg_type = getattr(msg_module, msg_name)
             with open(os.path.join(output_path, 'msg', '%s.rst' % msg_name), 'w') as f:
                 f.write('%s\n' % msg_name)
-                f.write('=' * (len(msg_name) + len(package.name) + 5) + '\n\n')
+                f.write('=' * 50 + '\n\n')
                 f.write('Definition::\n\n')
                 _write_raw(f, msg_type)
 
@@ -66,18 +68,19 @@ def generate_services(logger, event_queue, package, package_path, output_path):
         srv_names = []
 
     if srv_names:
-        with open(os.path.join(output_path, 'services.rst'), 'w') as f:
-            f.write('Services\n')
-            f.write('========\n')
+        mkdir_p(os.path.join(output_path, 'srv'))
+
+        with open(os.path.join(output_path, 'srv/index.rst'), 'w') as f:
+            f.write('%s » Services\n' % package.name)
+            f.write('=' * 50 + '\n')
             f.write("""
             .. toctree::
                 :titlesonly:
                 :glob:
 
-                srv/*
+                *
             """)
 
-        mkdir_p(os.path.join(output_path, 'srv'))
         for srv_name in srv_names:
             srv_type = getattr(srv_module, srv_name)
             if hasattr(srv_type, '_request_class'):
@@ -104,51 +107,32 @@ def _get_person_links(people):
 def generate_package_summary(logger, event_queue, package, package_path,
                              rosdoc_conf, output_path):
     mkdir_p(output_path)
-    with open(os.path.join(output_path, 'conf.py'), 'w') as f:
-        f.write('project = %s\n' % repr(package.name))
-        f.write('copyright = "Clearpath Robotics"\n')
-        f.write('author = %s\n' % repr(', '.join([person.name for person in package.authors])))
-
-        f.write("version = %s\n" % repr(package.version))
-        f.write("release = %s\n" % repr(package.version))
-
-        f.write("""
-master_doc = 'index'
-html_theme = 'agogo'
-
-templates_path = []
-
-#html_sidebars = {
-#   '**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html']
-#}
-""")
 
     with open(os.path.join(output_path, 'index.rst'), 'w') as f:
         f.write('%s\n' % package.name)
         f.write('=' * 50 + '\n\n')
 
-        f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
         f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))
+        f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
+
+        f.write('**API:** ')
+        for conf in rosdoc_conf:
+            rosdoc_output_dir = conf.get('output_dir', 'html')
+            rosdoc_name = conf.get('name', conf['builder'])
+            f.write("`%s <%s/index.html>`_ " % (rosdoc_name, rosdoc_output_dir))
+        f.write('\n\n')
 
         f.write("""
 .. toctree::
     :titlesonly:
 
 """)
-        for conf in rosdoc_conf:
-            rosdoc_output_dir = conf.get('output_dir', 'html')
-            f.write("    %s/index\n" % rosdoc_output_dir)
-            mkdir_p(os.path.join(output_path, rosdoc_output_dir))
-            with open(os.path.join(output_path, rosdoc_output_dir, 'index.rst'), 'w') as g:
-                g.write("API Docs (%s)\n" % conf['builder'])
-                g.write('=' * (len(conf['builder']) + 11) + '\n')
-
-        if os.path.exists(os.path.join(output_path, 'messages.rst')):
-            f.write("    messages\n")
-        if os.path.exists(os.path.join(output_path, 'services.rst')):
-            f.write("    services\n")
-        if os.path.exists(os.path.join(output_path, 'actions.rst')):
-            f.write("    actions\n")
+        if os.path.exists(os.path.join(output_path, 'msg/index.rst')):
+            f.write("    Messages <msg/index>\n")
+        if os.path.exists(os.path.join(output_path, 'srv/index.rst')):
+            f.write("    Services <srv/index>\n")
+        if os.path.exists(os.path.join(output_path, 'action/index.rst')):
+            f.write("    Actions <action/index>\n")
 
         changelog_path = os.path.join(package_path, 'CHANGELOG.rst')
         changelog_symlink_path = os.path.join(output_path, 'CHANGELOG.rst')
@@ -158,7 +142,35 @@ templates_path = []
         if os.path.exists(changelog_symlink_path):
             f.write("    Changelog <CHANGELOG>\n")
 
-
     return 0
 
+
+def generate_overall_summary(logger, event_queue, output_path):
+    with open(os.path.join(output_path, 'conf.py'), 'w') as f:
+        f.write('project = %s\n' % repr("Clearpath Software"))
+        f.write('copyright = "Clearpath Robotics"\n')
+
+        f.write("version = %s\n" % repr('2.3'))
+        f.write("release = %s\n" % repr('2.3devel'))
+
+        f.write("""
+master_doc = 'index'
+html_theme = 'agogo'
+
+templates_path = []
+""")
+
+    with open(os.path.join(output_path, 'index.rst'), 'w') as f:
+        f.write("""
+Packages
+========
+
+.. toctree::
+    :titlesonly:
+    :maxdepth: 1
+    :glob:
+
+    */index
+""")
+    return 0
 

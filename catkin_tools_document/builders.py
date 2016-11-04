@@ -23,14 +23,19 @@ from catkin_tools.execution.stages import FunctionStage
 from doxygen import generate_doxygen_config
 
 
-def _which(program):
-    for path in os.environ["PATH"].split(os.pathsep):
-        path = path.strip('"')
-        executable = os.path.join(path, program)
-        if os.path.exists(executable):
-            return executable
+_which_cache = {}
 
-    return None
+def _which(program):
+    global _which_cache
+    if program not in _which_cache:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            executable = os.path.join(path, program)
+            if os.path.exists(executable):
+                _which_cache[program] = executable
+                break
+
+    return _which_cache[program]
 
 
 def doxygen(conf, package, output_path, source_path, docs_build_path):
