@@ -95,9 +95,9 @@ def _get_person_links(people):
     person_links = []
     for person in people:
         if person.email:
-            person_links.append("`%s <mailto:%s>`_" % (person.name, person.email))
+            person_links.append("`%s <mailto:%s>`_" % (person.name.encode('utf-8'), person.email))
         else:
-            person_links.append(person.name)
+            person_links.append(person.name.encode('utf-8'))
     return person_links
 
 
