@@ -186,5 +186,7 @@ _base_config = {
     'DIRECTORY_GRAPH': True,
     'JAVADOC_AUTOBRIEF': False,
     'MULTILINE_CPP_IS_BRIEF': False,
-    'GENERATE_LATEX': False
+    'GENERATE_LATEX': False,
+    'GENERATE_XML': True,
+    'XML_OUTPUT': 'xml'
 }
