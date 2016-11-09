@@ -14,6 +14,7 @@
 
 import copy
 import os
+import pkg_resources
 
 
 def generate_doxygen_config(logger, event_queue, conf, package, output_path, source_path, docs_build_path):
@@ -28,9 +29,14 @@ def generate_doxygen_config(logger, event_queue, conf, package, output_path, sou
     with open(os.path.join(output_path, 'subdir'), 'w') as f:
         f.write(sub_dir)
 
+    tagfiles = []
+
+    # Add tags for the standard library.
+    cppreference_tagfile = pkg_resources.resource_filename('catkin_tools_document', 'external/cppreference-doxygen-web.tag.xml')
+    tagfiles.append('%s=%s' % (cppreference_tagfile, 'http://en.cppreference.com/w/'))
+
     # Link up doxygen for all in-workspace build dependencies.
     build_depends_names = [dep.name for dep in package.build_depends]
-    tagfiles = []
     for build_depend_name in build_depends_names:
         depend_docs_tagfile = os.path.join(output_path, '..', build_depend_name, 'tags')
         if os.path.exists(depend_docs_tagfile):
