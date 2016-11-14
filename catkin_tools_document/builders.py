@@ -58,7 +58,14 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
 
-    env = {'PYTHONPATH': ':'.join(sys.path)}
+    rpp = os.environ['ROS_PACKAGE_PATH'].split(':')
+    rpp.insert(0, source_path)
+    if os.path.exists(os.path.join(source_path, 'src')):
+        rpp.insert(0, os.path.join(source_path, 'src'))
+    env = {
+        'PYTHONPATH': ':'.join(sys.path),
+        'ROS_PACKAGE_PATH': ':'.join(rpp)
+    }
     return [
         CommandStage(
             'rosdoc_sphinx',
