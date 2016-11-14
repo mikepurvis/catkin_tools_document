@@ -63,6 +63,7 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
     if os.path.exists(os.path.join(source_path, 'src')):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
+        'PATH': os.environ['PATH']
         'PYTHONPATH': ':'.join(sys.path),
         'ROS_PACKAGE_PATH': ':'.join(rpp)
     }
