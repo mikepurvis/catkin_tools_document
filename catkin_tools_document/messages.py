@@ -32,7 +32,7 @@ def generate_messages(logger, event_queue, package, package_path, output_path):
         msg_module = __import__(package.name + '.msg').msg
         msg_names = [ msg_name for msg_name in dir(msg_module)
                       if re.match('^[A-Z]', msg_name) ]
-    except ImportError:
+    except:
         msg_names = []
 
     if msg_names:
@@ -64,7 +64,7 @@ def generate_services(logger, event_queue, package, package_path, output_path):
         srv_module = __import__(package.name + '.srv').srv
         srv_names = [ srv_name for srv_name in dir(srv_module)
                       if re.match('^[A-Z]', srv_name) ]
-    except ImportError:
+    except:
         srv_names = []
 
     if srv_names:
