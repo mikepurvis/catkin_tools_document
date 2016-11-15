@@ -16,9 +16,9 @@ import os
 import sys
 from copy import copy
 
-from catkin_tools.common import mkdir_p
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
+from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config
 from .util import which
@@ -42,7 +42,7 @@ def doxygen(conf, package, output_path, source_path, docs_build_path):
 
 def sphinx(conf, package, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
-    output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
+    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     rpp = os.environ['ROS_PACKAGE_PATH'].split(':')
     rpp.insert(0, source_path)
@@ -63,7 +63,7 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
 
 
 def epydoc(conf, package, output_path, source_path, docs_build_path):
-    output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
+    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     command = [which('epydoc'), '--html', package.name, '-o', output_dir]
     for s in conf.get('exclude', []):
@@ -77,6 +77,10 @@ def epydoc(conf, package, output_path, source_path, docs_build_path):
 
     env = {'PYTHONPATH': ':'.join(sys.path)}
     return [
+        FunctionStage(
+            'mkdir_epydoc',
+            makedirs,
+            path=output_dir),
         CommandStage(
             'rosdoc_epydoc',
             command,

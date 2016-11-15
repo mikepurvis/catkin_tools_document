@@ -73,7 +73,6 @@ def create_package_job(context, package, package_path, deps):
     stages = []
 
     # Create package docs spaces.
-    stages.append(FunctionStage('mkdir_docs_space', makedirs, path=docs_space))
     stages.append(FunctionStage('mkdir_docs_build_space', makedirs, path=docs_build_space))
 
     # Generate msg/srv/action docs with package summary page.
@@ -113,7 +112,7 @@ def create_summary_job(context, package_names):
     # Run Sphinx for the package summary.
     stages.append(CommandStage(
         'summary_sphinx',
-        [which('sphinx-build'), '-E', '.', docs_space],
+        [which('sphinx-build'), '-j8', '-E', '.', docs_space],
         cwd=docs_build_space
     ))
 

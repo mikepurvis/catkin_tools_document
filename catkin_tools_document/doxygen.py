@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from catkin_tools.common import mkdir_p
+
 import copy
 import os
 import pkg_resources
@@ -20,9 +22,10 @@ import pkg_resources
 def generate_doxygen_config(logger, event_queue, conf, package, output_path, source_path, docs_build_path):
     header_filename = ''
     footer_filename = ''
-    sub_dir = conf.get('output_dir', 'html')
+    sub_dir = os.path.join('html', conf.get('output_dir', ''))
     output_dir = os.path.join(output_path, sub_dir)
     tagfile_path = os.path.join(output_path, 'tags')
+    mkdir_p(output_dir)
 
     # This is a token to let dependent packages know what the subdirectory name is for linking
     # to this package's doxygen docs (since it isn't always "html").
@@ -42,7 +45,9 @@ def generate_doxygen_config(logger, event_queue, conf, package, output_path, sou
         if os.path.exists(depend_docs_tagfile):
             with open(os.path.join(output_path, '..', build_depend_name, 'subdir')) as f:
                 subdir = f.read()
-            tagfiles.append('%s=%s' % (depend_docs_tagfile, '../../%s/%s' % (build_depend_name, subdir)))
+            depend_docs_relative_path = '../' * len(sub_dir.split(os.sep)) + \
+                                        '../%s/%s' % (build_depend_name, subdir)
+            tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
     doxyfile_conf = copy.copy(_base_config)
     doxyfile_conf.update({

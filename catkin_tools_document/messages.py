@@ -128,9 +128,9 @@ def generate_package_summary(logger, event_queue, package, package_path,
         if rosdoc_conf:
             f.write('**API:** ')
             for conf in rosdoc_conf:
-                rosdoc_output_dir = conf.get('output_dir', 'html')
+                rosdoc_link = os.path.join('html', conf.get('output_dir', ''), 'index.html')
                 rosdoc_name = conf.get('name', conf['builder'])
-                f.write("`%s <%s/index.html>`_ " % (rosdoc_name, rosdoc_output_dir))
+                f.write("`%s <%s>`_ " % (rosdoc_name, rosdoc_link))
             f.write('\n\n')
 
         f.write("""
