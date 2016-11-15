@@ -3,7 +3,8 @@ from setuptools import setup
 setup(
     name='catkin_tools_document',
     packages=['catkin_tools_document'],
-    package_data={'catkin_tools_document': ['catkin_tools_document/external']},
+    package_data={'catkin_tools_document': ['catkin_tools_document/external/*']},
+    include_package_data=True,
     version='0.0.0',
     author='Mike Purvis',
     author_email='mpurvis@clearpath.ai',
