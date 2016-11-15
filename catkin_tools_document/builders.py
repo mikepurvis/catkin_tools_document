@@ -51,8 +51,10 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
     env = {
         'PATH': os.environ['PATH'],
         'PYTHONPATH': ':'.join(sys.path),
-        'ROS_PACKAGE_PATH': ':'.join(rpp)
+        'ROS_PACKAGE_PATH': ':'.join(rpp),
+        'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
+
     return [
         CommandStage(
             'rosdoc_sphinx',
@@ -75,7 +77,11 @@ def epydoc(conf, package, output_path, source_path, docs_build_path):
         # default options
         command.extend(['--inheritance', 'included', '--no-private'])
 
-    env = {'PYTHONPATH': ':'.join(sys.path)}
+    env = {
+        'PYTHONPATH': ':'.join(sys.path),
+        'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
+    }
+
     return [
         FunctionStage(
             'mkdir_epydoc',
