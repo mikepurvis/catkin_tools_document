@@ -20,22 +20,8 @@ from catkin_tools.common import mkdir_p
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 
-from doxygen import generate_doxygen_config
-
-
-_which_cache = {}
-
-def _which(program):
-    global _which_cache
-    if program not in _which_cache:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
-            executable = os.path.join(path, program)
-            if os.path.exists(executable):
-                _which_cache[program] = executable
-                break
-
-    return _which_cache[program]
+from .doxygen import generate_doxygen_config
+from .util import which
 
 
 def doxygen(conf, package, output_path, source_path, docs_build_path):
@@ -49,7 +35,7 @@ def doxygen(conf, package, output_path, source_path, docs_build_path):
             docs_build_path=docs_build_path),
         CommandStage(
             'rosdoc_doxygen',
-            [_which('doxygen'), os.path.join(docs_build_path, 'Doxyfile')],
+            [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile')],
             cwd=source_path)
     ]
 
@@ -70,7 +56,7 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
     return [
         CommandStage(
             'rosdoc_sphinx',
-            [_which('sphinx-build'), '-E', '.', output_dir],
+            [which('sphinx-build'), '-E', '.', output_dir],
             cwd=root_dir,
             env=env)
     ]
@@ -79,7 +65,7 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
 def epydoc(conf, package, output_path, source_path, docs_build_path):
     output_dir = os.path.join(output_path, conf.get('output_dir', 'html'))
 
-    command = [_which('epydoc'), '--html', package.name, '-o', output_dir]
+    command = [which('epydoc'), '--html', package.name, '-o', output_dir]
     for s in conf.get('exclude', []):
         command.extend(['--exclude', s])
 

@@ -50,6 +50,7 @@ from .messages import generate_messages
 from .messages import generate_services
 from .messages import generate_package_summary
 from .messages import generate_overall_summary
+from .util import which
 
 
 def create_package_job(context, package, package_path, deps):
@@ -112,7 +113,7 @@ def create_summary_job(context, package_names):
     # Run Sphinx for the package summary.
     stages.append(CommandStage(
         'summary_sphinx',
-        ['/usr/local/bin/sphinx-build', '-E', '.', docs_space],
+        [which('sphinx-build'), '-E', '.', docs_space],
         cwd=docs_build_space
     ))
 
