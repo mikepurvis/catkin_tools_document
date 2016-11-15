@@ -46,8 +46,8 @@
     <namespace>std</namespace>
   </compound>
   <compound kind="file">
-    <name>header</name>
-    <filename>cpp/header/header</filename>
+    <name>utility</name>
+    <filename>cpp/header/utility</filename>
     <namespace>std</namespace>
   </compound>
   <compound kind="file">
