@@ -20,11 +20,14 @@ from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
-from .doxygen import generate_doxygen_config
+from .doxygen import generate_doxygen_config, generate_doxygen_config_tags
 from .util import which
 
 
 def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
+    # We run doxygen twice, once to generate the actual docs, and then a second time to generate
+    # the tagfiles to link this documentation from other docs. See the following SO discussion
+    # for this suggestion: http://stackoverflow.com/a/35640905/109517
     return [
         FunctionStage(
             'generate_doxygen_config', generate_doxygen_config,
@@ -37,6 +40,16 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
         CommandStage(
             'rosdoc_doxygen',
             [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile')],
+            cwd=source_path),
+        FunctionStage(
+            'generate_doxygen_config_tags', generate_doxygen_config_tags,
+            conf=conf,
+            package=package,
+            source_path=source_path,
+            docs_build_path=docs_build_path),
+        CommandStage(
+            'rosdoc_doxygen_tags',
+            [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile_tags')],
             cwd=source_path)
     ]
 

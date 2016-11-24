@@ -19,19 +19,20 @@ import os
 import pkg_resources
 
 
+def _write_config(f, conf):
+    lines = []
+    for k, v in conf.items():
+        if isinstance(v, bool):
+            v = "YES" if v else "NO"
+        f.write("%s = %s\n" % (k, v))
+
 def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_deps,
                             output_path, source_path, docs_build_path):
     header_filename = ''
     footer_filename = ''
     output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
     output_dir = os.path.join(output_path, output_subdir)
-    tagfile_path = os.path.join(output_path, 'tags')
     mkdir_p(output_dir)
-
-    # This is a token to let dependent packages know what the subdirectory name is for linking
-    # to this package's doxygen docs (since it isn't always "html").
-    with open(os.path.join(output_path, 'subdir'), 'w') as f:
-        f.write(output_subdir)
 
     tagfiles = []
 
@@ -41,12 +42,12 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
 
     # Link up doxygen for all in-workspace build dependencies.
     for build_depend_name in recursive_build_deps:
-        depend_docs_tagfile = os.path.join(output_path, '..', build_depend_name, 'tags')
+        depend_docs_tagfile = os.path.join(docs_build_path, '..', build_depend_name, 'tags')
         if os.path.exists(depend_docs_tagfile):
-            with open(os.path.join(output_path, '..', build_depend_name, 'subdir')) as f:
+            with open(os.path.join(docs_build_path, '..', build_depend_name, 'subdir')) as f:
                 subdir = f.read()
-            depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \
-                                        '%s/%s' % (build_depend_name, subdir)
+                depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \
+                                            '%s/%s' % (build_depend_name, subdir)
             tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
     doxyfile_conf = copy.copy(_base_config)
@@ -55,6 +56,8 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
         'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
         'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
+        'GENERATE_HTML': True,
+        'GENERATE_XML': True,
         'HTML_FOOTER': footer_filename,
         'HTML_HEADER': header_filename,
         'HTML_OUTPUT': output_dir,
@@ -63,16 +66,40 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'PROJECT_NAME': package.name,
         'OUTPUT_DIRECTORY': output_path,
         'TAB_SIZE': conf.get('tab_size', '8'),
-        'GENERATE_TAGFILE': tagfile_path,
         'TAGFILES': ' '.join(tagfiles)
     })
 
     with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
-        lines = []
-        for k, v in doxyfile_conf.items():
-            if isinstance(v, bool):
-                v = "YES" if v else "NO"
-            f.write("%s = %s\n" % (k, v))
+        _write_config(f, doxyfile_conf)
+    return 0
+
+
+def generate_doxygen_config_tags(logger, event_queue, conf, package,
+                                 source_path, docs_build_path):
+    header_filename = ''
+    footer_filename = ''
+    output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
+    tagfile_path = os.path.join(docs_build_path, 'tags')
+
+    # This is a token to let dependent packages know what the subdirectory name is for linking
+    # to this package's doxygen docs (since it isn't always "html").
+    with open(os.path.join(docs_build_path, 'subdir'), 'w') as f:
+        f.write(output_subdir)
+
+    doxyfile_conf = copy.copy(_base_config)
+
+    doxyfile_conf.update({
+        'ALIASES': conf.get('aliases', ''),
+        'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
+        'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
+        'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
+        'INPUT': source_path,
+        'PROJECT_NAME': package.name,
+        'GENERATE_TAGFILE': tagfile_path
+    })
+
+    with open(os.path.join(docs_build_path, 'Doxyfile_tags'), 'w') as f:
+        _write_config(f, doxyfile_conf)
     return 0
 
 
@@ -159,7 +186,7 @@ _base_config = {
     'VERBATIM_HEADERS': False,
     'ALPHABETICAL_INDEX': False,
     'COLS_IN_ALPHA_INDEX': 5,
-    'GENERATE_HTML': True,
+    'GENERATE_HTML': False,
     'HTML_FILE_EXTENSION': '.html',
     'HTML_COLORSTYLE_HUE': 220,
     'HTML_COLORSTYLE_SAT': 100,
@@ -198,6 +225,6 @@ _base_config = {
     'JAVADOC_AUTOBRIEF': False,
     'MULTILINE_CPP_IS_BRIEF': False,
     'GENERATE_LATEX': False,
-    'GENERATE_XML': True,
+    'GENERATE_XML': False,
     'XML_OUTPUT': 'xml'
 }
