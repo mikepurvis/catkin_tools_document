@@ -19,18 +19,19 @@ import os
 import pkg_resources
 
 
-def generate_doxygen_config(logger, event_queue, conf, package, output_path, source_path, docs_build_path):
+def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_deps,
+                            output_path, source_path, docs_build_path):
     header_filename = ''
     footer_filename = ''
-    sub_dir = os.path.join('html', conf.get('output_dir', ''))
-    output_dir = os.path.join(output_path, sub_dir)
+    output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
+    output_dir = os.path.join(output_path, output_subdir)
     tagfile_path = os.path.join(output_path, 'tags')
     mkdir_p(output_dir)
 
     # This is a token to let dependent packages know what the subdirectory name is for linking
     # to this package's doxygen docs (since it isn't always "html").
     with open(os.path.join(output_path, 'subdir'), 'w') as f:
-        f.write(sub_dir)
+        f.write(output_subdir)
 
     tagfiles = []
 
@@ -39,14 +40,13 @@ def generate_doxygen_config(logger, event_queue, conf, package, output_path, sou
     tagfiles.append('%s=%s' % (cppreference_tagfile, 'http://en.cppreference.com/w/'))
 
     # Link up doxygen for all in-workspace build dependencies.
-    build_depends_names = [dep.name for dep in package.build_depends]
-    for build_depend_name in build_depends_names:
+    for build_depend_name in recursive_build_deps:
         depend_docs_tagfile = os.path.join(output_path, '..', build_depend_name, 'tags')
         if os.path.exists(depend_docs_tagfile):
             with open(os.path.join(output_path, '..', build_depend_name, 'subdir')) as f:
                 subdir = f.read()
-            depend_docs_relative_path = '../' * len(sub_dir.split(os.sep)) + \
-                                        '../%s/%s' % (build_depend_name, subdir)
+            depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \
+                                        '%s/%s' % (build_depend_name, subdir)
             tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
     doxyfile_conf = copy.copy(_base_config)

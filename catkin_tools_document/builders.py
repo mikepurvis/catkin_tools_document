@@ -24,12 +24,13 @@ from .doxygen import generate_doxygen_config
 from .util import which
 
 
-def doxygen(conf, package, output_path, source_path, docs_build_path):
+def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
     return [
         FunctionStage(
             'generate_doxygen_config', generate_doxygen_config,
             conf=conf,
             package=package,
+            recursive_build_deps=deps,
             output_path=output_path,
             source_path=source_path,
             docs_build_path=docs_build_path),
@@ -40,7 +41,7 @@ def doxygen(conf, package, output_path, source_path, docs_build_path):
     ]
 
 
-def sphinx(conf, package, output_path, source_path, docs_build_path):
+def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
@@ -64,7 +65,7 @@ def sphinx(conf, package, output_path, source_path, docs_build_path):
     ]
 
 
-def epydoc(conf, package, output_path, source_path, docs_build_path):
+def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     command = [which('epydoc'), '--html', package.name, '-o', output_dir]

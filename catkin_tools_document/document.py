@@ -92,7 +92,7 @@ def create_package_job(context, package, package_path, deps):
     for conf in rosdoc_conf:
         try:
             stages.extend(getattr(builders, conf['builder'])(
-                conf, package, docs_space, package_path_abs, docs_build_space))
+                conf, package, deps, docs_space, package_path_abs, docs_build_space))
         except AttributeError:
             log(fmt("[document] @!@{yf}Warning:@| Skipping unrecognized rosdoc builder [%s] for package [%s]" %
                 (conf['builder'], package.name)))
