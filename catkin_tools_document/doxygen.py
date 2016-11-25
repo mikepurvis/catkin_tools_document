@@ -15,6 +15,7 @@
 from catkin_tools.common import mkdir_p
 
 import copy
+import xml.etree.ElementTree as etree
 import os
 import pkg_resources
 
@@ -100,6 +101,18 @@ def generate_doxygen_config_tags(logger, event_queue, conf, package,
 
     with open(os.path.join(docs_build_path, 'Doxyfile_tags'), 'w') as f:
         _write_config(f, doxyfile_conf)
+    return 0
+
+
+def filter_doxygen_tags(logger, event_queue, docs_build_path):
+    tagfile_path = os.path.join(docs_build_path, 'tags')
+    tree = etree.parse(tagfile_path)
+    root = tree.getroot()
+
+    for node in root.findall("./compound[@kind='page']"):
+        root.remove(node)
+
+    tree.write(tagfile_path)
     return 0
 
 

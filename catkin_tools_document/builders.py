@@ -20,7 +20,7 @@ from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
-from .doxygen import generate_doxygen_config, generate_doxygen_config_tags
+from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
 from .util import which
 
 
@@ -50,7 +50,12 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
         CommandStage(
             'rosdoc_doxygen_tags',
             [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile_tags')],
-            cwd=source_path)
+            cwd=source_path),
+        # Filter the tags XML to remove user-defined references that may appear in multiple
+        # packages (like "codeapi"), since they are not namespaced.
+        FunctionStage(
+            'filter_doxygen_tags', filter_doxygen_tags,
+            docs_build_path=docs_build_path)
     ]
 
 
