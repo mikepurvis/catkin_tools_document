@@ -16,8 +16,20 @@
 
 import os
 import re
+import yaml
 
 from catkin_tools.common import mkdir_p
+
+CONF_ENVVAR_NAME = 'CATKIN_TOOLS_DOCUMENT_CONFIG_FILE'
+
+CONF_DEFAULT = {
+   'project': 'Project',
+   'copyright': 'the Authors',
+   'version': '0.0',
+   'master_doc': 'index',
+   'html_theme': 'agogo',
+   'templates_path': []
+}
 
 
 def _write_raw(f, msg_type):
@@ -157,19 +169,14 @@ def generate_package_summary(logger, event_queue, package, package_path,
 
 
 def generate_overall_summary(logger, event_queue, output_path):
+    conf = CONF_DEFAULT.copy()
+    if CONF_ENVVAR_NAME in os.environ:
+        with open(os.environ[CONF_ENVVAR_NAME]) as f:
+            conf.update(yaml.load(f))
+
     with open(os.path.join(output_path, 'conf.py'), 'w') as f:
-        f.write('project = %s\n' % repr("Clearpath Software"))
-        f.write('copyright = "Clearpath Robotics"\n')
-
-        f.write("version = %s\n" % repr('2.4'))
-        f.write("release = %s\n" % repr('2.4devel'))
-
-        f.write("""
-master_doc = 'index'
-html_theme = 'agogo'
-
-templates_path = []
-""")
+        for k, v in conf.items():
+            f.write('%s = %s\n' % (k, repr(v)))
 
     with open(os.path.join(output_path, 'index.rst'), 'w') as f:
         f.write("""
