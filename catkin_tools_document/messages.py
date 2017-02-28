@@ -161,8 +161,8 @@ def generate_overall_summary(logger, event_queue, output_path):
         f.write('project = %s\n' % repr("Clearpath Software"))
         f.write('copyright = "Clearpath Robotics"\n')
 
-        f.write("version = %s\n" % repr('2.3'))
-        f.write("release = %s\n" % repr('2.3devel'))
+        f.write("version = %s\n" % repr('2.4'))
+        f.write("release = %s\n" % repr('2.4devel'))
 
         f.write("""
 master_doc = 'index'
