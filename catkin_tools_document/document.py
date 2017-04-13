@@ -241,12 +241,15 @@ def document_workspace(
                 max_toplevel_jobs=n_jobs,
                 continue_on_failure=continue_on_failure,
                 continue_without_deps=False))
+
         except Exception:
             status_thread.keep_running = False
             all_succeeded = False
             status_thread.join(1.0)
             wide_log(str(traceback.format_exc()))
         status_thread.join(1.0)
+
+        return 0 if all_succeeded else 1
 
     except KeyboardInterrupt:
         wide_log("[document] Interrupted by user!")
