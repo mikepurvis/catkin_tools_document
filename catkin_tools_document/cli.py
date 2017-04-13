@@ -32,7 +32,7 @@ def main(opts):
         max_load=None,
         gnu_make_enabled=False)
 
-    document_workspace(
+    return document_workspace(
         ctx,
         packages=opts.packages,
         start_with=opts.start_with,
