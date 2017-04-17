@@ -254,3 +254,5 @@ def document_workspace(
     except KeyboardInterrupt:
         wide_log("[document] Interrupted by user!")
         event_queue.put(None)
+
+        return 130  # EOWNERDEAD
