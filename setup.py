@@ -18,8 +18,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
     ],
-    description="Command line tools for working with catkin.",
-    long_description="Provides command line tools for working with catkin.",
+    description="Plugin for catkin_tools to enable building workspace documentation.",
     license='Apache 2.0',
     entry_points={
         'catkin_tools.commands.catkin.verbs': [
