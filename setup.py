@@ -7,10 +7,10 @@ setup(
     include_package_data=True,
     version='0.0.0',
     author='Mike Purvis',
-    author_email='mpurvis@clearpath.ai',
+    author_email='mike@uwmike.com',
     maintainer='Mike Purvis',
-    maintainer_email='mpurvis@clearpath.ai',
-    url='http://catkin-tools-document.readthedocs.org/',
+    maintainer_email='mike@uwmike.com',
+    url='https://github.com/mikepurvis/catkin_tools_document',
     keywords=['catkin'],
     classifiers=[
         'Environment :: Console',
