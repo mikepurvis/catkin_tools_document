@@ -27,7 +27,7 @@ setup(
     },
     install_requires=[
         'catkin_pkg',
-        'catkin_tools',
+        'catkin_tools>=0.4.4',
         'catkin_sphinx',
         'epydoc',
         'sphinx']
