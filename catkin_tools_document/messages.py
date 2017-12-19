@@ -125,7 +125,7 @@ def generate_package_summary(logger, event_queue, package, package_path,
         f.write('=' * 50 + '\n\n')
 
         f.write('.. raw:: html\n\n')
-        f.write('    <p>' + package.description + '</p>\n\n')
+        f.write('    <p>' + (package.description).encode('utf-8') + '</p>\n\n')
 
         if package.maintainers:
             f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))
