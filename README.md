@@ -32,3 +32,19 @@ catkin document
 Now open up `catkin_ws/docs/index.html` in the browser of your choice.
 
 [1]: https://launchpad.net/~mikepurvis/+archive/ubuntu/catkin
+
+Release
+-------
+
+```
+# Upload to pypi
+python setup.py sdist bdist_wheel
+twine upload dist/*
+
+# Upload to launchpad. Need to rebuild with signing as the built-in capability in stdeb
+# isn't released yet, and I couldn't get dpkg-sig to work either for a post-build signature.
+python setup.py --command-packages=stdeb.command sdist_dsc --upstream-version-suffix=xenial --suite xenial
+cd deb_dist/*
+dpkg-buildpackage -S
+dput ppa:mikepurvis/catkin ../*_source.changes
+```

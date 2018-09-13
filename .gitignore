@@ -25,3 +25,5 @@ var/
 *.egg
 
 .DS_Store
+deb_dist
+*.tar.gz
