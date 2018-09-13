@@ -67,7 +67,8 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'PROJECT_NAME': package.name,
         'OUTPUT_DIRECTORY': output_path,
         'TAB_SIZE': conf.get('tab_size', '8'),
-        'TAGFILES': ' '.join(tagfiles)
+        'TAGFILES': ' '.join(tagfiles),
+        'USE_MATHJAX': True
     })
 
     with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
