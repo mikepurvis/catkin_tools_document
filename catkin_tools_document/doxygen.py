@@ -59,6 +59,7 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
         'GENERATE_HTML': True,
         'GENERATE_XML': True,
+        'SEARCHENGINE': True,
         'HTML_FOOTER': footer_filename,
         'HTML_HEADER': header_filename,
         'HTML_OUTPUT': output_dir,
