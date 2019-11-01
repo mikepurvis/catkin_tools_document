@@ -109,10 +109,16 @@ def generate_services(logger, event_queue, package, package_path, output_path):
 def _get_person_links(people):
     person_links = []
     for person in people:
-        if person.email:
-            person_links.append("`%s <mailto:%s>`_" % (person.name.encode('utf-8'), person.email))
+        if str == bytes:
+            # Python 2
+            name = person.name.encode('utf-8')
         else:
-            person_links.append(person.name.encode('utf-8'))
+            # Python 3
+            name = person.name
+        if person.email:
+            person_links.append("`%s <mailto:%s>`_" % (name, person.email))
+        else:
+            person_links.append(name)
     return person_links
 
 
@@ -124,8 +130,14 @@ def generate_package_summary(logger, event_queue, package, package_path,
         f.write('%s\n' % package.name)
         f.write('=' * 50 + '\n\n')
 
+        if str == bytes:
+            # Python 2
+            description = package.description.encode('utf-8')
+        else:
+            # Python 3
+            description = package.description
         f.write('.. raw:: html\n\n')
-        f.write('    <p>' + (package.description).encode('utf-8') + '</p>\n\n')
+        f.write('    <p>' + description + '</p>\n\n')
 
         if package.maintainers:
             f.write('**Maintainers:** %s\n\n' % ', '.join(_get_person_links(package.maintainers)))

@@ -69,7 +69,7 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
         'PATH': os.environ['PATH'],
-        'PYTHONPATH': ':'.join(sys.path),
+        'PYTHONPATH': os.environ['PYTHONPATH'],
         'ROS_PACKAGE_PATH': ':'.join(rpp),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
@@ -97,7 +97,7 @@ def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
         command.extend(['--inheritance', 'included', '--no-private'])
 
     env = {
-        'PYTHONPATH': ':'.join(sys.path),
+        'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
 
