@@ -100,6 +100,9 @@ def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
+    
+    # Swallow errors from epydoc until we figure out a better story for Python 3.
+    wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
 
     return [
         FunctionStage(
@@ -108,7 +111,7 @@ def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
             path=output_dir),
         CommandStage(
             'rosdoc_epydoc',
-            command,
+            wrapper_command,
             cwd=source_path,
             env=env)
     ]
