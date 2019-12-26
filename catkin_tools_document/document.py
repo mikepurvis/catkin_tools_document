@@ -54,9 +54,9 @@ from .util import which
 
 
 def create_package_job(context, package, package_path, deps):
-    docs_space = os.path.join(context.build_space_abs, '..', 'docs', package.name)
-    docs_build_space = os.path.join(context.build_space_abs, 'docs', package.name)
-    package_path_abs = os.path.join(context.source_space_abs, package_path)
+    docs_space = os.path.realpath(os.path.join(context.build_space_abs, '..', 'docs', package.name))
+    docs_build_space = os.path.realpath(os.path.join(context.build_space_abs, 'docs', package.name))
+    package_path_abs = os.path.realpath(os.path.join(context.source_space_abs, package_path))
 
     # Load rosdoc config, if it exists.
     rosdoc_yaml_path = os.path.join(package_path_abs, 'rosdoc.yaml')
