@@ -64,12 +64,13 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'HTML_HEADER': header_filename,
         'HTML_OUTPUT': output_dir,
         'IMAGE_PATH': conf.get('image_path', source_path),
-        'INPUT': source_path,
+        'INPUT': source_path + " " + conf.get('use_mdfile_as_mainpage', ""),
         'PROJECT_NAME': package.name,
         'OUTPUT_DIRECTORY': output_path,
         'TAB_SIZE': conf.get('tab_size', '8'),
         'TAGFILES': ' '.join(tagfiles),
-        'USE_MATHJAX': True
+        'USE_MATHJAX': True,
+        'USE_MDFILE_AS_MAINPAGE': conf.get('use_mdfile_as_mainpage', "")
     })
 
     with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
