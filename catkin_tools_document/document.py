@@ -60,6 +60,16 @@ def create_package_job(context, package, package_path, deps):
 
     # Load rosdoc config, if it exists.
     rosdoc_yaml_path = os.path.join(package_path_abs, 'rosdoc.yaml')
+    for export in package.exports:
+        if export.tagname == "rosdoc":
+            config = export.attributes.get('config', '')
+            if config:
+                rosdoc_yaml_path_temp = os.path.join(package_path_abs, config)
+                if os.path.exists(rosdoc_yaml_path_temp):
+                    # Stop if configuration is found which exists
+                    rosdoc_yaml_path = rosdoc_yaml_path_temp
+                    break
+
     if os.path.exists(rosdoc_yaml_path):
         with open(rosdoc_yaml_path) as f:
             rosdoc_conf = yaml.load(f)
