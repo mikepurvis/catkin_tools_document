@@ -76,6 +76,12 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'USE_MDFILE_AS_MAINPAGE': mdfile
     })
 
+    # FILE_PATTERNS needs a seperated update of the config as it it is already
+    # in the base config and should only be overriden in case it is defined.
+    file_patterns = conf.get('file_patterns', '')
+    if file_patterns:
+        doxyfile_conf.update({'FILE_PATTERNS': file_patterns})
+
     with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
         _write_config(f, doxyfile_conf)
     return 0
