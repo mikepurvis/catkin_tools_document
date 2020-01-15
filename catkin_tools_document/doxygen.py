@@ -51,6 +51,9 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
                                             '%s/%s' % (build_depend_name, subdir)
             tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
+    mdfile = conf.get('use_mdfile_as_mainpage', '')
+    mdfile = os.path.join(source_path, mdfile) if mdfile else mdfile
+
     doxyfile_conf = copy.copy(_base_config)
     doxyfile_conf.update({
         'ALIASES': conf.get('aliases', ''),
@@ -64,13 +67,13 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
         'HTML_HEADER': header_filename,
         'HTML_OUTPUT': output_dir,
         'IMAGE_PATH': conf.get('image_path', source_path),
-        'INPUT': source_path + " " + conf.get('use_mdfile_as_mainpage', ""),
+        'INPUT': " ".join([source_path, mdfile]),
         'PROJECT_NAME': package.name,
         'OUTPUT_DIRECTORY': output_path,
         'TAB_SIZE': conf.get('tab_size', '8'),
         'TAGFILES': ' '.join(tagfiles),
         'USE_MATHJAX': True,
-        'USE_MDFILE_AS_MAINPAGE': conf.get('use_mdfile_as_mainpage', "")
+        'USE_MDFILE_AS_MAINPAGE': mdfile
     })
 
     with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
