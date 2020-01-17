@@ -52,7 +52,8 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
             tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
     mdfile = conf.get('use_mdfile_as_mainpage', '')
-    mdfile = os.path.join(source_path, mdfile) if mdfile else mdfile
+    if mdfile:
+        mdfile = os.path.join(source_path, mdfile)
 
     doxyfile_conf = copy.copy(_base_config)
     doxyfile_conf.update({
