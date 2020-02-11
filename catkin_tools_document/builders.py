@@ -68,8 +68,8 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     if os.path.exists(os.path.join(source_path, 'src')):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
-        'PATH': os.environ['PATH'],
-        'PYTHONPATH': os.environ['PYTHONPATH'],
+        'PATH': os.environ.get('PATH', ''),
+        'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'ROS_PACKAGE_PATH': ':'.join(rpp),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
@@ -83,7 +83,45 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
+def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
+    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
+
+    # TODO: Would be better to extract this information from the setup.py, but easier
+    # for now to just codify an assumption of {pkg}/python, falling back to {pkg}/src.
+    src_dir = os.path.join(source_path, 'python')
+    if not os.path.exists(src_dir):
+        src_dir = os.path.join(source_path, 'src')
+
+    command = [which('pydoctor'), '--project-name', package.name, '--html-output', output_dir]
+
+    for subdir in os.listdir(src_dir):
+        command.extend(['--add-package', package.name])
+
+    if 'config' in conf and 'epydoc' not in conf['config']:
+        command.extend(['--config', os.path.join(source_path, conf['config'])])
+
+    # pydoctor returns error codes for minor issues we don't care about.
+    wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
+
+    return [
+        FunctionStage(
+            'mkdir_pydoctor',
+            makedirs,
+            path=output_dir),
+        CommandStage(
+            'rosdoc_pydoctor',
+            wrapper_command,
+            cwd=src_dir)
+    ]
+
+
 def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
+    try:
+        which('epydoc')
+    except KeyError:
+        # If epydoc is missing, fall back to pydoctor.
+        return pydoctor(conf, package, deps, output_path, source_path, docs_build_path)
+
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     command = [which('epydoc'), '--html', package.name, '-o', output_dir]

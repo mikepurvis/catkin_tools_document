@@ -29,5 +29,6 @@ setup(
         'catkin_pkg',
         'catkin_tools>=0.4.4',
         'catkin_sphinx',
+#        'pydoctor',
         'sphinx']
 )
