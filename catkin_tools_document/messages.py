@@ -146,8 +146,17 @@ def generate_package_summary(logger, event_queue, package, package_path,
             f.write('**Authors:** %s\n\n' % ', '.join(_get_person_links(package.authors)))
 
         f.write('**License:** %s\n\n' % ', '.join(package.licenses))
-
-        f.write('**Source:** ? \n\n')
+      
+        for url in package.urls:
+            if url.type == 'repository':
+                if str == bytes:
+                    # Python 2
+                    url_ = url.url.encode('utf-8')
+                else:
+                    # Python 3
+                    url_ = url.url
+                f.write('**Source:** %s\n\n' % url_)
+                break
 
         if rosdoc_conf:
             f.write('**API:** ')
