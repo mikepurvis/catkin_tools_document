@@ -193,7 +193,7 @@ def generate_overall_summary(logger, event_queue, output_path):
     conf = CONF_DEFAULT.copy()
     if CONF_ENVVAR_NAME in os.environ:
         with open(os.environ[CONF_ENVVAR_NAME]) as f:
-            conf.update(yaml.load(f))
+            conf.update(yaml.full_load(f))
 
     with open(os.path.join(output_path, 'conf.py'), 'w') as f:
         for k, v in conf.items():

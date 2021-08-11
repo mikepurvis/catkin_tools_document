@@ -72,7 +72,7 @@ def create_package_job(context, package, package_path, deps):
 
     if os.path.exists(rosdoc_yaml_path):
         with open(rosdoc_yaml_path) as f:
-            rosdoc_conf = yaml.load(f)
+            rosdoc_conf = yaml.full_load(f)
     else:
         if os.path.exists(os.path.join(package_path_abs, 'src')) or \
             os.path.exists(os.path.join(package_path_abs, 'include')):
