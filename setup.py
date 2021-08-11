@@ -25,10 +25,12 @@ setup(
             'document = catkin_tools_document:description',
         ]
     },
+    python_version=">=3.5",
     install_requires=[
         'catkin_pkg',
         'catkin_tools>=0.4.4',
         'catkin_sphinx',
-#        'pydoctor',
-        'sphinx']
+        'pydoctor>=20.7.0',
+        'sphinx'
+    ]
 )
