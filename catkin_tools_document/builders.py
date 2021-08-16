@@ -68,6 +68,7 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     if os.path.exists(os.path.join(source_path, 'src')):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
+        'CMAKE_PREFIX_PATH': os.environ.get('CMAKE_PREFIX_PATH', ''),
         'PATH': os.environ.get('PATH', ''),
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'ROS_PACKAGE_PATH': ':'.join(rpp),
@@ -135,6 +136,7 @@ def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
         command.extend(['--inheritance', 'included', '--no-private'])
 
     env = {
+        'CMAKE_PREFIX_PATH': os.environ.get('CMAKE_PREFIX_PATH', ''),
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
