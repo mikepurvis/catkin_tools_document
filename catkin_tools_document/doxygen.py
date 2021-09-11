@@ -224,7 +224,6 @@ _base_config = {
     'ALLEXTERNALS': False,
     'EXTERNAL_GROUPS': False,
     'EXTERNAL_PAGES': False,
-    'PERL_PATH': '/usr/bin/perl',
     'CLASS_DIAGRAMS': True,
     'HIDE_UNDOC_RELATIONS': True,
     'HAVE_DOT': True,
