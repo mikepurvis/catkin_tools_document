@@ -13,8 +13,6 @@
 # limitations under the License.
 
 import os
-import sys
-from copy import copy
 
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
