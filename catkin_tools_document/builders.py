@@ -80,7 +80,7 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     return [
         CommandStage(
             'rosdoc_sphinx',
-            [which('sphinx-build'), '-E', '.', output_dir],
+            [which('sphinx-build'), '-E', root_dir, output_dir],
             cwd=root_dir,
             env=env)
     ]

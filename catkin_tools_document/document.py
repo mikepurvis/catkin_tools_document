@@ -127,7 +127,7 @@ def create_summary_job(context, package_names):
     # Run Sphinx for the package summary.
     stages.append(CommandStage(
         'summary_sphinx',
-        [which('sphinx-build'), '-j8', '-E', '.', docs_space],
+        [which('sphinx-build'), '-j8', '-E', docs_build_space, docs_space],
         cwd=docs_build_space
     ))
 
