@@ -13,12 +13,14 @@
 # limitations under the License.
 
 import os
+import yaml
 
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
+from .sphinx import generate_intersphinx_mapping
 from .util import which
 
 
@@ -61,11 +63,14 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
+    intersphinx_mapping = generate_intersphinx_mapping(os.path.join(output_path, '..'), root_dir)
+
     rpp = os.environ['ROS_PACKAGE_PATH'].split(':')
     rpp.insert(0, source_path)
     if os.path.isdir(os.path.join(source_path, 'src')):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
+        'INTERSPHINX_MAPPING': yaml.dump(intersphinx_mapping),
         'PATH': os.environ.get('PATH', ''),
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'ROS_PACKAGE_PATH': ':'.join(rpp),
