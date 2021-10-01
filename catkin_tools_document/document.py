@@ -45,7 +45,7 @@ from catkin_tools.jobs.utils import makedirs
 from catkin_tools.verbs.catkin_build.build import determine_packages_to_be_built
 from catkin_tools.verbs.catkin_build.build import verify_start_with_option
 
-from catkin_tools_document import builders
+from . import builders
 from .messages import generate_messages
 from .messages import generate_services
 from .messages import generate_package_summary
