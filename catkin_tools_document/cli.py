@@ -16,14 +16,9 @@ from argparse import ArgumentTypeError
 
 from catkin_tools.argument_parsing import add_context_args
 from catkin_tools.context import Context
-from catkin_tools.terminal_color import fmt
-
-from  catkin_tools.execution import job_server
-
+from catkin_tools.execution import job_server
 
 from .document import document_workspace
-
-import sys
 
 
 def main(opts):
