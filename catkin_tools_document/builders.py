@@ -65,7 +65,7 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
 
     rpp = os.environ['ROS_PACKAGE_PATH'].split(':')
     rpp.insert(0, source_path)
-    if os.path.exists(os.path.join(source_path, 'src')):
+    if os.path.isdir(os.path.join(source_path, 'src')):
         rpp.insert(0, os.path.join(source_path, 'src'))
     env = {
         'PATH': os.environ.get('PATH', ''),
@@ -89,7 +89,7 @@ def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
     # TODO: Would be better to extract this information from the setup.py, but easier
     # for now to just codify an assumption of {pkg}/python, falling back to {pkg}/src.
     src_dir = os.path.join(source_path, 'python')
-    if not os.path.exists(src_dir):
+    if not os.path.isdir(src_dir):
         src_dir = os.path.join(source_path, 'src')
 
     command = [which('pydoctor'), '--project-name', package.name, '--html-output', output_dir]

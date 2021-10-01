@@ -17,13 +17,14 @@ import os
 
 _which_cache = {}
 
+
 def which(program):
     global _which_cache
     if program not in _which_cache:
         for path in os.environ["PATH"].split(os.pathsep):
             path = path.strip('"')
             executable = os.path.join(path, program)
-            if os.path.exists(executable):
+            if os.path.isfile(executable):
                 _which_cache[program] = executable
                 break
 

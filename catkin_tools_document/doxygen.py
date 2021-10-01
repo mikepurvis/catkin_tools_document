@@ -44,7 +44,7 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
     # Link up doxygen for all in-workspace build dependencies.
     for build_depend_name in recursive_build_deps:
         depend_docs_tagfile = os.path.join(docs_build_path, '..', build_depend_name, 'tags')
-        if os.path.exists(depend_docs_tagfile):
+        if os.path.isfile(depend_docs_tagfile):
             with open(os.path.join(docs_build_path, '..', build_depend_name, 'subdir')) as f:
                 subdir = f.read()
                 depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \
