@@ -39,7 +39,7 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
 
     # Add tags for the standard library.
     cppreference_tagfile = pkg_resources.resource_filename('catkin_tools_document', 'external/cppreference-doxygen-web.tag.xml')
-    tagfiles.append('%s=%s' % (cppreference_tagfile, 'http://en.cppreference.com/w/'))
+    tagfiles.append('%s=%s' % (cppreference_tagfile, 'https://en.cppreference.com/w/'))
 
     # Link up doxygen for all in-workspace build dependencies.
     for build_depend_name in recursive_build_deps:
