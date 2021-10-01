@@ -194,7 +194,7 @@ def document_workspace(
 
     # Get the names of all packages to be built
     packages_to_be_documented_names = [p.name for _, p in packages_to_be_documented]
-    packages_to_be_documeted_deps_names = [p.name for _, p in packages_to_be_documented_deps]
+    packages_to_be_documented_deps_names = [p.name for _, p in packages_to_be_documented_deps]
 
     jobs = []
 
