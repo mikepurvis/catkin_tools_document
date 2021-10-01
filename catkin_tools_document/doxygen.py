@@ -21,11 +21,11 @@ import pkg_resources
 
 
 def _write_config(f, conf):
-    lines = []
     for k, v in conf.items():
         if isinstance(v, bool):
             v = "YES" if v else "NO"
         f.write("%s = %s\n" % (k, v))
+
 
 def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_deps,
                             output_path, source_path, docs_build_path):
