@@ -159,4 +159,3 @@ def jsdoc():
 
 def swagger():
     raise NotImplementedError
-
