@@ -171,19 +171,19 @@ def generate_package_summary(logger, event_queue, package, package_path,
     :titlesonly:
 
 """)
-        if os.path.exists(os.path.join(output_path, 'msg/index.rst')):
+        if os.path.isfile(os.path.join(output_path, 'msg/index.rst')):
             f.write("    Messages <msg/index>\n")
-        if os.path.exists(os.path.join(output_path, 'srv/index.rst')):
+        if os.path.isfile(os.path.join(output_path, 'srv/index.rst')):
             f.write("    Services <srv/index>\n")
-        if os.path.exists(os.path.join(output_path, 'action/index.rst')):
+        if os.path.isfile(os.path.join(output_path, 'action/index.rst')):
             f.write("    Actions <action/index>\n")
 
         changelog_path = os.path.join(package_path, 'CHANGELOG.rst')
         changelog_symlink_path = os.path.join(output_path, 'CHANGELOG.rst')
-        if os.path.exists(changelog_path) and not os.path.exists(changelog_symlink_path):
+        if os.path.isfile(changelog_path) and not os.path.isfile(changelog_symlink_path):
             os.symlink(changelog_path, changelog_symlink_path)
 
-        if os.path.exists(changelog_symlink_path):
+        if os.path.isfile(changelog_symlink_path):
             f.write("    Changelog <CHANGELOG>\n")
 
     return 0
@@ -212,4 +212,3 @@ Packages
     */index
 """)
     return 0
-

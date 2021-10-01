@@ -12,16 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from argparse import ArgumentTypeError
+
 from catkin_tools.argument_parsing import add_context_args
 from catkin_tools.context import Context
-from catkin_tools.terminal_color import fmt
-
-from  catkin_tools.execution import job_server
-
+from catkin_tools.execution import job_server
 
 from .document import document_workspace
-
-import sys
 
 
 def main(opts):
@@ -95,7 +92,7 @@ def prepare_arguments(parser):
     def status_rate_type(rate):
         rate = float(rate)
         if rate < 0:
-            raise argparse.ArgumentTypeError("must be greater than or equal to zero.")
+            raise ArgumentTypeError("must be greater than or equal to zero.")
         return rate
 
     add('--limit-status-rate', '--status-rate', type=status_rate_type, default=10.0,

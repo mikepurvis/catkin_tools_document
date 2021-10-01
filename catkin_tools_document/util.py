@@ -12,19 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import lru_cache
 import os
 
 
-_which_cache = {}
-
+@lru_cache
 def which(program):
-    global _which_cache
-    if program not in _which_cache:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
-            executable = os.path.join(path, program)
-            if os.path.exists(executable):
-                _which_cache[program] = executable
-                break
-
-    return _which_cache[program]
+    for path in os.environ["PATH"].split(os.pathsep):
+        path = path.strip('"')
+        executable = os.path.join(path, program)
+        if os.path.isfile(executable):
+            return executable

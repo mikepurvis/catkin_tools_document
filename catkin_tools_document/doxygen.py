@@ -21,11 +21,11 @@ import pkg_resources
 
 
 def _write_config(f, conf):
-    lines = []
     for k, v in conf.items():
         if isinstance(v, bool):
             v = "YES" if v else "NO"
         f.write("%s = %s\n" % (k, v))
+
 
 def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_deps,
                             output_path, source_path, docs_build_path):
@@ -39,12 +39,12 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
 
     # Add tags for the standard library.
     cppreference_tagfile = pkg_resources.resource_filename('catkin_tools_document', 'external/cppreference-doxygen-web.tag.xml')
-    tagfiles.append('%s=%s' % (cppreference_tagfile, 'http://en.cppreference.com/w/'))
+    tagfiles.append('%s=%s' % (cppreference_tagfile, 'https://en.cppreference.com/w/'))
 
     # Link up doxygen for all in-workspace build dependencies.
     for build_depend_name in recursive_build_deps:
         depend_docs_tagfile = os.path.join(docs_build_path, '..', build_depend_name, 'tags')
-        if os.path.exists(depend_docs_tagfile):
+        if os.path.isfile(depend_docs_tagfile):
             with open(os.path.join(docs_build_path, '..', build_depend_name, 'subdir')) as f:
                 subdir = f.read()
                 depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \

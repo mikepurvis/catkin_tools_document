@@ -1,6 +1,6 @@
 External Tag Files
 ==================
 
-C++ stdlib tags from this location:
+C++ stdlib tags generated according to instruction from:
 
-http://en.cppreference.com/w/Cppreference:Archives
+https://en.cppreference.com/w/Cppreference_talk:Archives#How_to_update_the_Doxygen_tag_files.3F

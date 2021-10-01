@@ -45,7 +45,7 @@ from catkin_tools.jobs.utils import makedirs
 from catkin_tools.verbs.catkin_build.build import determine_packages_to_be_built
 from catkin_tools.verbs.catkin_build.build import verify_start_with_option
 
-from catkin_tools_document import builders
+from . import builders
 from .messages import generate_messages
 from .messages import generate_services
 from .messages import generate_package_summary
@@ -65,17 +65,17 @@ def create_package_job(context, package, package_path, deps):
             config = export.attributes.get('config', '')
             if config:
                 rosdoc_yaml_path_temp = os.path.join(package_path_abs, config)
-                if os.path.exists(rosdoc_yaml_path_temp):
+                if os.path.isfile(rosdoc_yaml_path_temp):
                     # Stop if configuration is found which exists
                     rosdoc_yaml_path = rosdoc_yaml_path_temp
                     break
 
-    if os.path.exists(rosdoc_yaml_path):
+    if os.path.isfile(rosdoc_yaml_path):
         with open(rosdoc_yaml_path) as f:
             rosdoc_conf = yaml.full_load(f)
     else:
-        if os.path.exists(os.path.join(package_path_abs, 'src')) or \
-            os.path.exists(os.path.join(package_path_abs, 'include')):
+        if os.path.isdir(os.path.join(package_path_abs, 'src')) or \
+                os.path.isdir(os.path.join(package_path_abs, 'include')):
             rosdoc_conf = [{'builder': 'doxygen'}]
         else:
             rosdoc_conf = []
@@ -194,7 +194,7 @@ def document_workspace(
 
     # Get the names of all packages to be built
     packages_to_be_documented_names = [p.name for _, p in packages_to_be_documented]
-    packages_to_be_documeted_deps_names = [p.name for _, p in packages_to_be_documented_deps]
+    packages_to_be_documented_deps_names = [p.name for _, p in packages_to_be_documented_deps]
 
     jobs = []
 
