@@ -54,7 +54,7 @@ from .util import which
 
 
 def create_package_job(context, package, package_path, deps):
-    docs_space = os.path.join(context.build_space_abs, '..', 'docs', package.name)
+    docs_space = os.path.join(context.docs_space_abs, package.name)
     docs_build_space = os.path.join(context.build_space_abs, 'docs', package.name)
     package_path_abs = os.path.join(context.source_space_abs, package_path)
 
@@ -116,7 +116,7 @@ def create_package_job(context, package, package_path, deps):
 
 
 def create_summary_job(context, package_names):
-    docs_space = os.path.join(context.build_space_abs, '..', 'docs')
+    docs_space = context.docs_space_abs
     docs_build_space = os.path.join(context.build_space_abs, 'docs')
 
     stages = []
