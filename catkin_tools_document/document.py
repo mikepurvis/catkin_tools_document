@@ -53,7 +53,7 @@ from .messages import generate_overall_summary
 from .util import which
 
 
-def create_package_job(context, package, package_path, deps):
+def create_package_job(context, package, package_path, deps, doc_deps):
     docs_space = os.path.join(context.docs_space_abs, package.name)
     docs_build_space = os.path.join(context.build_space_abs, 'docs', package.name)
     package_path_abs = os.path.join(context.source_space_abs, package_path)
@@ -107,7 +107,7 @@ def create_package_job(context, package, package_path, deps):
                 docs_build_space = os.path.realpath(docs_build_space)
                 package_path_abs = os.path.realpath(package_path_abs)
             stages.extend(getattr(builders, builder)(
-                conf, package, deps, docs_space, package_path_abs, docs_build_space))
+                conf, package, deps, doc_deps, docs_space, package_path_abs, docs_build_space))
         except AttributeError:
             log(fmt("[document] @!@{yf}Warning:@| Skipping unrecognized rosdoc builder [%s] for package [%s]" %
                 (conf['builder'], package.name)))
@@ -213,8 +213,13 @@ def document_workspace(
             p.name for _, p
             in get_cached_recursive_build_depends_in_workspace(pkg, packages_to_be_documented)
         ]
+        doc_deps = [
+            p.name for _, p
+            in get_cached_recursive_build_depends_in_workspace(pkg, packages_to_be_documented +
+                                                               packages_to_be_documented_deps)
+        ]
 
-        jobs.append(create_package_job(context, pkg, pkg_path, deps))
+        jobs.append(create_package_job(context, pkg, pkg_path, deps, doc_deps))
 
     # Special job for post-job summary sphinx step.
     jobs.append(create_summary_job(context, package_names=packages_to_be_documented_names))

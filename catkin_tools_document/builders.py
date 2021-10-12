@@ -24,7 +24,7 @@ from .sphinx import generate_intersphinx_mapping
 from .util import which
 
 
-def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
+def doxygen(conf, package, deps, doc_deps, output_path, source_path, docs_build_path):
     # We run doxygen twice, once to generate the actual docs, and then a second time to generate
     # the tagfiles to link this documentation from other docs. See the following SO discussion
     # for this suggestion: http://stackoverflow.com/a/35640905/109517
@@ -33,7 +33,7 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
             'generate_doxygen_config', generate_doxygen_config,
             conf=conf,
             package=package,
-            recursive_build_deps=deps,
+            recursive_build_deps=doc_deps,
             output_path=output_path,
             source_path=source_path,
             docs_build_path=docs_build_path),
@@ -59,7 +59,7 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
-def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
+def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_path):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
@@ -86,7 +86,7 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
-def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
+def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path):
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     # TODO: Would be better to extract this information from the setup.py, but easier
@@ -118,12 +118,12 @@ def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
-def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
+def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_path):
     try:
         which('epydoc')
     except KeyError:
         # If epydoc is missing, fall back to pydoctor.
-        return pydoctor(conf, package, deps, output_path, source_path, docs_build_path)
+        return pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path)
 
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
