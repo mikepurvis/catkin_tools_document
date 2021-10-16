@@ -26,7 +26,6 @@ except ImportError:
 
 from catkin_pkg.packages import find_packages
 from catkin_pkg.topological_order import topological_order_packages
-from catkin_pkg.package import parse_package
 
 from catkin_tools.common import log
 from catkin_tools.common import wide_log
