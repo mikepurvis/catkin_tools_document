@@ -45,6 +45,7 @@ def doxygen(conf, package, deps, doc_deps, output_path, source_path, docs_build_
             'generate_doxygen_config_tags', generate_doxygen_config_tags,
             conf=conf,
             package=package,
+            output_path=output_path,
             source_path=source_path,
             docs_build_path=docs_build_path),
         CommandStage(

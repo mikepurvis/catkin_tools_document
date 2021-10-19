@@ -20,6 +20,9 @@ import os
 import pkg_resources
 
 
+DOXYGEN_OUTPUT_DIR_FILE = 'doxygen_output'
+
+
 def _write_config(f, conf):
     for k, v in conf.items():
         if isinstance(v, bool):
@@ -45,10 +48,9 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
     for build_depend_name in recursive_build_deps:
         depend_docs_tagfile = os.path.join(docs_build_path, '..', build_depend_name, 'tags')
         if os.path.isfile(depend_docs_tagfile):
-            with open(os.path.join(docs_build_path, '..', build_depend_name, 'subdir')) as f:
-                subdir = f.read()
-                depend_docs_relative_path = '../' * len(output_subdir.split(os.sep)) + \
-                                            '%s/%s' % (build_depend_name, subdir)
+            with open(os.path.join(docs_build_path, '..', build_depend_name, DOXYGEN_OUTPUT_DIR_FILE)) as f:
+                depend_output_dir = f.read()
+            depend_docs_relative_path = os.path.relpath(depend_output_dir, output_dir)
             tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
 
     mdfile = conf.get('use_mdfile_as_mainpage', '')
@@ -84,16 +86,15 @@ def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_
 
 
 def generate_doxygen_config_tags(logger, event_queue, conf, package,
-                                 source_path, docs_build_path):
-    header_filename = ''
-    footer_filename = ''
+                                 output_path, source_path, docs_build_path):
     output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
+    output_dir = os.path.join(output_path, output_subdir)
     tagfile_path = os.path.join(docs_build_path, 'tags')
 
     # This is a token to let dependent packages know what the subdirectory name is for linking
     # to this package's doxygen docs (since it isn't always "html").
-    with open(os.path.join(docs_build_path, 'subdir'), 'w') as f:
-        f.write(output_subdir)
+    with open(os.path.join(docs_build_path, DOXYGEN_OUTPUT_DIR_FILE), 'w') as f:
+        f.write(output_dir)
 
     doxyfile_conf = copy.copy(_base_config)
 
