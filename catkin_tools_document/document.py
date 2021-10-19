@@ -194,14 +194,11 @@ def document_workspace(
 
     # Get the names of all packages to be built
     packages_to_be_documented_names = [p.name for _, p in packages_to_be_documented]
-    packages_to_be_documented_deps_names = [p.name for _, p in packages_to_be_documented_deps]
 
     jobs = []
 
     # Construct jobs
-    for pkg_path, pkg in all_packages:
-        if pkg.name not in packages_to_be_documented_names:
-            continue
+    for pkg_path, pkg in packages_to_be_documented:
 
         # Get actual execution deps
         deps = [
