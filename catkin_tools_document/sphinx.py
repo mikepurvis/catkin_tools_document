@@ -15,18 +15,50 @@
 import copy
 import os.path
 import sys
+import yaml
+
+from catkin_tools.execution.events import ExecutionEvent
 
 
-def generate_intersphinx_mapping(docs_space, root_dir):
+SPHINX_OUTPUT_DIR_FILE = 'sphinx_output'
+
+
+def generate_intersphinx_mapping(logger, event_queue, output_path, root_dir, doc_deps, docs_build_path, job_env):
     intersphinx_mapping = copy.copy(_base_intersphinx_mapping)
 
     python_version = f'{sys.version_info.major}.{sys.version_info.minor}'
     intersphinx_mapping['python'] = (f'https://docs.python.org/{python_version}/', None)
-    
-    if os.path.isfile(os.path.join(docs_space, 'objects.inv')):
-        intersphinx_mapping['workspace'] = (os.path.relpath(docs_space, root_dir), None)
 
-    return intersphinx_mapping
+    # Add workspace objects file
+    objects_file = os.path.join(output_path, '..', 'objects.inv')
+    if os.path.isfile(objects_file):
+        intersphinx_mapping['workspace'] = (os.path.relpath(os.path.dirname(objects_file), root_dir),
+                                            os.path.realpath(objects_file))
+
+    # Add other dependencies in the workspace
+    for index, dep in enumerate(doc_deps):
+        dep_output_dir_file = os.path.join(docs_build_path, '..', dep, SPHINX_OUTPUT_DIR_FILE)
+        if not os.path.isfile(dep_output_dir_file):
+            continue
+
+        with open(dep_output_dir_file, 'r') as f:
+            depend_output_dir = f.read()
+        objects_file = os.path.join(depend_output_dir, 'objects.inv')
+        if not os.path.isfile(objects_file):
+            continue
+
+        intersphinx_mapping[dep] = (os.path.relpath(depend_output_dir, root_dir), os.path.realpath(objects_file))
+
+        event_queue.put(ExecutionEvent(
+            'STAGE_PROGRESS',
+            job_id=logger.job_id,
+            stage_label=logger.stage_label,
+            percent=str(index/float(len(doc_deps)))
+        ))
+
+    job_env['INTERSPHINX_MAPPING'] = yaml.dump(intersphinx_mapping)
+
+    return 0
 
 
 _base_intersphinx_mapping = {
