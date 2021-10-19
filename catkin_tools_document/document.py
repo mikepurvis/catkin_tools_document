@@ -39,6 +39,7 @@ from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.terminal_color import fmt
 
+from catkin_tools.jobs.utils import yaml_dump_file
 from catkin_tools.jobs.utils import makedirs
 
 from catkin_tools.verbs.catkin_build.build import determine_packages_to_be_built
@@ -56,6 +57,7 @@ def create_package_job(context, package, package_path, deps, doc_deps):
     docs_space = os.path.join(context.docs_space_abs, package.name)
     docs_build_space = os.path.join(context.build_space_abs, 'docs', package.name)
     package_path_abs = os.path.join(context.source_space_abs, package_path)
+    package_meta_path = context.package_metadata_path(package)
 
     # Load rosdoc config, if it exists.
     rosdoc_yaml_path = os.path.join(package_path_abs, 'rosdoc.yaml')
@@ -94,6 +96,11 @@ def create_package_job(context, package, package_path, deps, doc_deps):
     stages.append(FunctionStage('generate_package_summary', generate_package_summary,
                                 package=package, package_path=package_path_abs,
                                 rosdoc_conf=rosdoc_conf, output_path=docs_build_space))
+
+    # Cache document config
+    stages.append(FunctionStage('cache_rosdoc_config', yaml_dump_file,
+                                contents=rosdoc_conf,
+                                dest_path=os.path.join(package_meta_path, 'rosdoc.yaml')))
 
     job_env = {}
 
