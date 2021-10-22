@@ -17,6 +17,7 @@ import os
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
+from catkin_tools.jobs.utils import unset_env
 from catkin_tools.jobs.utils import write_file
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
@@ -82,7 +83,7 @@ def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
             contents=output_dir,
             dest_path=os.path.join(docs_build_path, SPHINX_OUTPUT_DIR_FILE)),
         FunctionStage(
-            'rosdoc_intersphinx_mapping',
+            'job_env_set_intersphinx_mapping',
             generate_intersphinx_mapping,
             output_path=output_path,
             root_dir=root_dir,
@@ -93,7 +94,12 @@ def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
             'rosdoc_sphinx',
             [which('sphinx-build'), '-E', root_dir, output_dir],
             cwd=root_dir,
-            env=env)
+            env=env),
+        FunctionStage(
+            'job_env_unset_intersphinx_mapping',
+            unset_env,
+            job_env=job_env,
+            keys=['INTERSPHINX_MAPPING']),
     ]
 
 
