@@ -17,10 +17,10 @@ import os
 from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
-from catkin_tools.jobs.utils import unset_env
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
 from .sphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
+from .util import unset_env
 from .util import which
 from .util import write_file
 
