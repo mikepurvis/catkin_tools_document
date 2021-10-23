@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from functools import lru_cache
 import os
+import yaml
+
+from catkin_tools.common import mkdir_p
 
 
 @lru_cache
@@ -23,3 +28,22 @@ def which(program):
         executable = os.path.join(path, program)
         if os.path.isfile(executable):
             return executable
+
+
+def yaml_dump_file(logger, event_queue, contents: Any, dest_path: str, dumper=yaml.SafeDumper) -> int:
+    """
+    FunctionStage functor that dumps the contents of an object, which is accepted by yaml dumper, to a file.
+    In case the file exists, the file is overwritten.
+
+    :param logger:
+    :param event_queue:
+    :param contents: Object which is dumped to the yaml file.
+    :param dest_path: File to which the contents should be written
+    :param dumper: Yaml dumper to use (default: yaml.SafeDumper)
+    :return: return code
+    """
+    mkdir_p(os.path.dirname(dest_path))
+    with open(dest_path, 'w') as f:
+        yaml.dump(contents, f, dumper)
+
+    return 0
