@@ -39,7 +39,6 @@ from catkin_tools.execution.stages import CommandStage
 from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.terminal_color import fmt
 
-from catkin_tools.jobs.utils import yaml_dump_file
 from catkin_tools.jobs.utils import makedirs
 
 from catkin_tools.verbs.catkin_build.build import determine_packages_to_be_built
@@ -51,6 +50,7 @@ from .messages import generate_services
 from .messages import generate_package_summary
 from .messages import generate_overall_summary
 from .util import which
+from .util import yaml_dump_file
 
 
 def create_package_job(context, package, package_path, deps, doc_deps):
