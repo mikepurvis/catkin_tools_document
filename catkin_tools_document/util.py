@@ -13,12 +13,15 @@
 # limitations under the License.
 
 from typing import Any
+from typing import List
+from typing import Union
 
 from functools import lru_cache
 import os
 import yaml
 
 from catkin_tools.common import mkdir_p
+from catkin_tools.execution.events import ExecutionEvent
 
 
 @lru_cache
@@ -28,6 +31,37 @@ def which(program):
         executable = os.path.join(path, program)
         if os.path.isfile(executable):
             return executable
+
+
+def unset_env(logger, event_queue, job_env: dict, keys: Union[List[str], None] = None) -> int:
+    """
+    FunctionStage functor that removes keys from the job_env.
+    In case no keys are provide, the job_env is cleared.
+
+    :param logger:
+    :param event_queue:
+    :param job_env: Job environment
+    :param keys: Keys to remove from the job environment
+    :return: return code
+    """
+    if keys is None:
+        job_env.clear()
+        return 0
+
+    for index, key in enumerate(keys):
+        try:
+            job_env.pop(key)
+        except KeyError:
+            logger.err("Could not delete missing key '{}' from the job environment".format(key))
+        finally:
+            event_queue.put(ExecutionEvent(
+                'STAGE_PROGRESS',
+                job_id=logger.job_id,
+                stage_label=logger.stage_label,
+                percent=str(index/float(len(keys)))
+            ))
+
+    return 0
 
 
 def write_file(logger, event_queue, contents: Any, dest_path: str, mode: str = 'w') -> int:
