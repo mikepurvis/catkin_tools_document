@@ -35,6 +35,6 @@ setup(
         'catkin_sphinx',
         'pydoctor>=20.7.0',
         'pyyaml',
-        'sphinx>=4.3'
+        'sphinx>=4.3.0'
     ]
 )
