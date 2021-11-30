@@ -31,7 +31,7 @@ setup(
     python_version=">=3.5",
     install_requires=[
         'catkin_pkg',
-        'catkin_tools>=0.4.5',
+        'catkin_tools>=0.8.0',
         'catkin_sphinx',
         'pydoctor>=20.7.0',
         'pyyaml',
