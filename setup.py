@@ -23,15 +23,18 @@ setup(
     entry_points={
         'catkin_tools.commands.catkin.verbs': [
             'document = catkin_tools_document:description',
-        ]
+        ],
+        'catkin_tools.spaces': [
+            'docs = catkin_tools_document.spaces.docs:description',
+        ],
     },
     python_version=">=3.5",
     install_requires=[
         'catkin_pkg',
-        'catkin_tools>=0.4.4',
+        'catkin_tools>=0.8.0',
         'catkin_sphinx',
         'pydoctor>=20.7.0',
         'pyyaml',
-        'sphinx'
+        'sphinx>=4.3.0'
     ]
 )

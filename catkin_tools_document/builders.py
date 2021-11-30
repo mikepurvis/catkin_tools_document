@@ -19,10 +19,13 @@ from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
+from .sphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
+from .util import unset_env
 from .util import which
+from .util import write_file
 
 
-def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
+def doxygen(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
     # We run doxygen twice, once to generate the actual docs, and then a second time to generate
     # the tagfiles to link this documentation from other docs. See the following SO discussion
     # for this suggestion: http://stackoverflow.com/a/35640905/109517
@@ -31,7 +34,7 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
             'generate_doxygen_config', generate_doxygen_config,
             conf=conf,
             package=package,
-            recursive_build_deps=deps,
+            recursive_build_deps=doc_deps,
             output_path=output_path,
             source_path=source_path,
             docs_build_path=docs_build_path),
@@ -43,6 +46,7 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
             'generate_doxygen_config_tags', generate_doxygen_config_tags,
             conf=conf,
             package=package,
+            output_path=output_path,
             source_path=source_path,
             docs_build_path=docs_build_path),
         CommandStage(
@@ -57,7 +61,7 @@ def doxygen(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
-def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
+def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
     root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
@@ -73,15 +77,33 @@ def sphinx(conf, package, deps, output_path, source_path, docs_build_path):
     }
 
     return [
+        FunctionStage(
+            'cache_sphinx_output',
+            write_file,
+            contents=output_dir,
+            dest_path=os.path.join(docs_build_path, SPHINX_OUTPUT_DIR_FILE)),
+        FunctionStage(
+            'job_env_set_intersphinx_mapping',
+            generate_intersphinx_mapping,
+            output_path=output_path,
+            root_dir=root_dir,
+            doc_deps=doc_deps,
+            docs_build_path=docs_build_path,
+            job_env=job_env),
         CommandStage(
             'rosdoc_sphinx',
-            [which('sphinx-build'), '-E', '.', output_dir],
+            [which('sphinx-build'), '-E', root_dir, output_dir],
             cwd=root_dir,
-            env=env)
+            env=env),
+        FunctionStage(
+            'job_env_unset_intersphinx_mapping',
+            unset_env,
+            job_env=job_env,
+            keys=['INTERSPHINX_MAPPING']),
     ]
 
 
-def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
+def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
     # TODO: Would be better to extract this information from the setup.py, but easier
@@ -113,12 +135,12 @@ def pydoctor(conf, package, deps, output_path, source_path, docs_build_path):
     ]
 
 
-def epydoc(conf, package, deps, output_path, source_path, docs_build_path):
+def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
     try:
         which('epydoc')
     except KeyError:
         # If epydoc is missing, fall back to pydoctor.
-        return pydoctor(conf, package, deps, output_path, source_path, docs_build_path)
+        return pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env)
 
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
