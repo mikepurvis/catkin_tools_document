@@ -19,7 +19,8 @@ from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
-from .intersphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
+from .intersphinx import generate_intersphinx_mapping
+from .util import output_dir_file
 from .util import unset_env
 from .util import which
 from .util import write_file
@@ -81,7 +82,8 @@ def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
             'cache_sphinx_output',
             write_file,
             contents=output_dir,
-            dest_path=os.path.join(docs_build_path, SPHINX_OUTPUT_DIR_FILE)),
+            dest_path=os.path.join(docs_build_path, output_dir_file('sphinx')),
+        ),
         FunctionStage(
             'job_env_set_intersphinx_mapping',
             generate_intersphinx_mapping,
@@ -128,6 +130,11 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
             'mkdir_pydoctor',
             makedirs,
             path=output_dir),
+        FunctionStage(
+            'cache_pydoctor_output',
+            write_file,
+            contents=output_dir,
+            dest_path=os.path.join(docs_build_path, output_dir_file('pydoctor'))),
         CommandStage(
             'rosdoc_pydoctor',
             wrapper_command,
@@ -158,7 +165,7 @@ def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
-    
+
     # Swallow errors from epydoc until we figure out a better story for Python 3.
     wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
 

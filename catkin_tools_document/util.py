@@ -24,6 +24,10 @@ from catkin_tools.common import mkdir_p
 from catkin_tools.execution.events import ExecutionEvent
 
 
+def output_dir_file(builder: str) -> str:
+    return f"{builder}_output"
+
+
 @lru_cache
 def which(program):
     for path in os.environ["PATH"].split(os.pathsep):
@@ -36,7 +40,7 @@ def which(program):
 def unset_env(logger, event_queue, job_env: dict, keys: Union[List[str], None] = None) -> int:
     """
     FunctionStage functor that removes keys from the job_env.
-    In case no keys are provide, the job_env is cleared.
+    In case no keys are provided, the job_env is cleared.
 
     :param logger:
     :param event_queue:
