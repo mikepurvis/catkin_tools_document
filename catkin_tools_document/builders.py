@@ -136,15 +136,15 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
 
 
 def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
-    try:
-        which('epydoc')
-    except KeyError:
+
+    epydoc_exe = which("epydoc")
+    if epydoc_exe is None:
         # If epydoc is missing, fall back to pydoctor.
         return pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env)
 
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
-    command = [which('epydoc'), '--html', package.name, '-o', output_dir]
+    command = [epydoc_exe, '--html', package.name, '-o', output_dir]
     for s in conf.get('exclude', []):
         command.extend(['--exclude', s])
 
