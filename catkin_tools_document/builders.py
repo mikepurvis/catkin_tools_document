@@ -114,11 +114,11 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
 
     command = [which('pydoctor'), '--project-name', package.name, '--html-output', output_dir]
 
-    for subdir in os.listdir(src_dir):
-        command.extend(['--add-package', package.name])
-
     if 'config' in conf and 'epydoc' not in conf['config']:
         command.extend(['--config', os.path.join(source_path, conf['config'])])
+
+    for subdir in os.listdir(src_dir):
+        command.append(os.path.join(src_dir, subdir))
 
     # pydoctor returns error codes for minor issues we don't care about.
     wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
