@@ -19,7 +19,7 @@ from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
-from .sphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
+from .intersphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
 from .util import unset_env
 from .util import which
 from .util import write_file
