@@ -14,15 +14,51 @@
 
 from argparse import ArgumentTypeError
 
+from catkin_pkg.package import InvalidPackage
+
 from catkin_tools.argument_parsing import add_context_args
+from catkin_tools.common import find_enclosing_package, getcwd
 from catkin_tools.context import Context
 from catkin_tools.execution import job_server
+from catkin_tools.metadata import find_enclosing_workspace
 
 from .document import document_workspace
 
 
 def main(opts):
     ctx = Context.load(opts.workspace, opts.profile, opts, append=True)
+
+    # Context-aware args
+    if opts.document_this or opts.start_with_this:
+        # Determine the enclosing package
+        try:
+            ws_path = find_enclosing_workspace(getcwd())
+            # Suppress warnings since this won't necessarily find all packages
+            # in the workspace (it stops when it finds one package), and
+            # relying on it for warnings could mislead people.
+            this_package = find_enclosing_package(
+                search_start_path=getcwd(),
+                ws_path=ws_path,
+                warnings=[])
+        except InvalidPackage as ex:
+            sys.exit(clr("@{rf}Error:@| The file %s is an invalid package.xml file."
+                         " See below for details:\n\n%s" % (ex.package_path, ex.msg)))
+
+        # Handle context-based package building
+        if opts.document_this:
+            if this_package:
+                opts.packages += [this_package]
+            else:
+                sys.exit(
+                    "[document] Error: In order to use --this, the current directory must be part of a catkin package.")
+
+        # If --start--with was used without any packages and --this was specified, start with this package
+        if opts.start_with_this:
+            if this_package:
+                opts.start_with = this_package
+            else:
+                sys.exit(
+                    "[document] Error: In order to use --this, the current directory must be part of a catkin package.")
 
     job_server.initialize(
         max_jobs=4,
