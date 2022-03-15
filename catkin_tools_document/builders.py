@@ -19,7 +19,8 @@ from catkin_tools.execution.stages import FunctionStage
 from catkin_tools.jobs.utils import makedirs
 
 from .doxygen import generate_doxygen_config, generate_doxygen_config_tags, filter_doxygen_tags
-from .sphinx import SPHINX_OUTPUT_DIR_FILE, generate_intersphinx_mapping
+from .intersphinx import generate_intersphinx_mapping
+from .util import output_dir_file
 from .util import unset_env
 from .util import which
 from .util import write_file
@@ -81,7 +82,8 @@ def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
             'cache_sphinx_output',
             write_file,
             contents=output_dir,
-            dest_path=os.path.join(docs_build_path, SPHINX_OUTPUT_DIR_FILE)),
+            dest_path=os.path.join(docs_build_path, output_dir_file('sphinx')),
+        ),
         FunctionStage(
             'job_env_set_intersphinx_mapping',
             generate_intersphinx_mapping,
@@ -114,11 +116,11 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
 
     command = [which('pydoctor'), '--project-name', package.name, '--html-output', output_dir]
 
-    for subdir in os.listdir(src_dir):
-        command.extend(['--add-package', package.name])
-
     if 'config' in conf and 'epydoc' not in conf['config']:
         command.extend(['--config', os.path.join(source_path, conf['config'])])
+
+    for subdir in os.listdir(src_dir):
+        command.append(os.path.join(src_dir, subdir))
 
     # pydoctor returns error codes for minor issues we don't care about.
     wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
@@ -128,6 +130,11 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
             'mkdir_pydoctor',
             makedirs,
             path=output_dir),
+        FunctionStage(
+            'cache_pydoctor_output',
+            write_file,
+            contents=output_dir,
+            dest_path=os.path.join(docs_build_path, output_dir_file('pydoctor'))),
         CommandStage(
             'rosdoc_pydoctor',
             wrapper_command,
@@ -136,15 +143,15 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
 
 
 def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
-    try:
-        which('epydoc')
-    except KeyError:
+
+    epydoc_exe = which("epydoc")
+    if epydoc_exe is None:
         # If epydoc is missing, fall back to pydoctor.
         return pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env)
 
     output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
 
-    command = [which('epydoc'), '--html', package.name, '-o', output_dir]
+    command = [epydoc_exe, '--html', package.name, '-o', output_dir]
     for s in conf.get('exclude', []):
         command.extend(['--exclude', s])
 
@@ -158,7 +165,7 @@ def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
         'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
     }
-    
+
     # Swallow errors from epydoc until we figure out a better story for Python 3.
     wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
 

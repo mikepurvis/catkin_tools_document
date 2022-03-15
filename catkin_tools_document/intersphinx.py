@@ -19,8 +19,10 @@ import yaml
 
 from catkin_tools.execution.events import ExecutionEvent
 
+from .util import output_dir_file
 
-SPHINX_OUTPUT_DIR_FILE = 'sphinx_output'
+
+INTERSPHINX_GENERATORS = ['pydoctor', 'sphinx']
 
 
 def generate_intersphinx_mapping(logger, event_queue, output_path, root_dir, doc_deps, docs_build_path, job_env):
@@ -37,17 +39,19 @@ def generate_intersphinx_mapping(logger, event_queue, output_path, root_dir, doc
 
     # Add other dependencies in the workspace
     for index, dep in enumerate(doc_deps):
-        dep_output_dir_file = os.path.join(docs_build_path, '..', dep, SPHINX_OUTPUT_DIR_FILE)
-        if not os.path.isfile(dep_output_dir_file):
-            continue
+        for gen_type in INTERSPHINX_GENERATORS:
+            dep_output_dir_file = os.path.join(docs_build_path, '..', dep, output_dir_file[gen_type])
+            if not os.path.isfile(dep_output_dir_file):
+                continue
 
-        with open(dep_output_dir_file, 'r') as f:
-            depend_output_dir = f.read()
-        objects_file = os.path.join(depend_output_dir, 'objects.inv')
-        if not os.path.isfile(objects_file):
-            continue
+            with open(dep_output_dir_file, 'r') as f:
+                depend_output_dir = f.read()
+            objects_file = os.path.join(depend_output_dir, 'objects.inv')
+            if not os.path.isfile(objects_file):
+                continue
 
-        intersphinx_mapping[dep] = (os.path.relpath(depend_output_dir, root_dir), os.path.realpath(objects_file))
+            intersphinx_mapping[f'{dep}_{gen_type}'] = (os.path.relpath(depend_output_dir, root_dir),
+                                                        os.path.realpath(objects_file))
 
         event_queue.put(ExecutionEvent(
             'STAGE_PROGRESS',

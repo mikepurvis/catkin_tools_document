@@ -33,7 +33,7 @@ setup(
         'catkin_pkg',
         'catkin_tools>=0.8.3',
         'catkin_sphinx',
-        'pydoctor>=20.7.0',
+        'pydoctor>=20.12.0',
         'pyyaml',
         'sphinx>=4.3.0'
     ]
