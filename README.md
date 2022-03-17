@@ -24,7 +24,7 @@ system package for Ubuntu or Debian [on my PPA][1].
 ```
 pip install catkin_tools_document
 mkdir -p catkin_ws/src && cd catkin_ws
-rosinstall_generator ros_base --deps --tar --rosdistro indigo > src/.rosinstall
+rosinstall_generator ros_base --deps --tar --rosdistro noetic > src/.rosinstall
 wstool up -t src
 catkin document
 ```
@@ -43,7 +43,7 @@ twine upload dist/*
 
 # Upload to launchpad. Need to rebuild with signing as the built-in capability in stdeb
 # isn't released yet, and I couldn't get dpkg-sig to work either for a post-build signature.
-python setup.py --command-packages=stdeb.command sdist_dsc --upstream-version-suffix=xenial --suite xenial
+python setup.py --command-packages=stdeb.command sdist_dsc --upstream-version-suffix=focal --suite focal
 cd deb_dist/*
 dpkg-buildpackage -S
 dput ppa:mikepurvis/catkin ../*_source.changes
