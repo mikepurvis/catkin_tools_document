@@ -5,7 +5,7 @@ setup(
     packages=['catkin_tools_document'],
     package_data={'catkin_tools_document': ['catkin_tools_document/external/*']},
     include_package_data=True,
-    version='0.4.0',
+    version='0.5.0',
     author='Mike Purvis',
     author_email='mike@uwmike.com',
     maintainer='Mike Purvis',
