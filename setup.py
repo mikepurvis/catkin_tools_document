@@ -1,8 +1,9 @@
+from setuptools import find_packages
 from setuptools import setup
 
 setup(
     name='catkin_tools_document',
-    packages=['catkin_tools_document'],
+    packages=find_packages(),
     package_data={'catkin_tools_document': ['catkin_tools_document/external/*']},
     include_package_data=True,
     version='0.5.0',
