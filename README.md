@@ -19,7 +19,7 @@ Demonstration
 -------------
 
 Using a virtualenv is recommended if using `pip`. Alternatively, you can get a
-system package for Ubuntu or Debian [on my PPA][1].
+system package for Ubuntu or Debian [on my PPA][1] (2022-03-17: PPA is broken/not updated for now).
 
 ```
 pip install catkin_tools_document
