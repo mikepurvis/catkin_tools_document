@@ -40,7 +40,7 @@ def generate_intersphinx_mapping(logger, event_queue, output_path, root_dir, doc
     # Add other dependencies in the workspace
     for index, dep in enumerate(doc_deps):
         for gen_type in INTERSPHINX_GENERATORS:
-            dep_output_dir_file = os.path.join(docs_build_path, '..', dep, output_dir_file[gen_type])
+            dep_output_dir_file = os.path.join(docs_build_path, '..', dep, output_dir_file(gen_type))
             if not os.path.isfile(dep_output_dir_file):
                 continue
 
