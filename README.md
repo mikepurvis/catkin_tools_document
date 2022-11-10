@@ -1,5 +1,6 @@
-catkin_tools_document
-=====================
+# catkin_tools_document
+
+[![Lint](https://github.com/mikepurvis/catkin_tools_document/actions/workflows/lint.yml/badge.svg)](https://github.com/mikepurvis/catkin_tools_document/actions/workflows/lint.yml)
 
 This package is an experimental documentation-builder for ROS packages, similar to
 [rosdoc_lite](http://wiki.ros.org/rosdoc_lite). It differs in the following ways:
@@ -15,13 +16,12 @@ This package is an experimental documentation-builder for ROS packages, similar 
   in-package symbols only, and once with all links to get the HTML output. This
   avoids the duplicate symbol warnings which rosdoc_lite produces.
 
-Demonstration
--------------
+## Demonstration
 
 Using a virtualenv is recommended if using `pip`. Alternatively, you can get a
 system package for Ubuntu or Debian [on my PPA][1] (2022-03-17: PPA is broken/not updated for now).
 
-```
+```bash
 pip install catkin_tools_document
 mkdir -p catkin_ws/src && cd catkin_ws
 rosinstall_generator ros_base --deps --tar --rosdistro noetic > src/.rosinstall
@@ -33,10 +33,9 @@ Now open up `catkin_ws/docs/index.html` in the browser of your choice.
 
 [1]: https://launchpad.net/~mikepurvis/+archive/ubuntu/catkin
 
-Release
--------
+## Release
 
-```
+```bash
 # Upload to pypi
 python setup.py sdist bdist_wheel
 twine upload dist/*
