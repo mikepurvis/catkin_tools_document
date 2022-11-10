@@ -19,7 +19,7 @@ from .cli import prepare_arguments
 
 
 description = dict(
-    verb='document',
+    verb="document",
     description="Build documentation for packages in a workspace.",
     main=main,
     prepare_arguments=prepare_arguments,
