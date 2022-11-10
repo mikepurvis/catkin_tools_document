@@ -58,17 +58,19 @@ def unset_env(logger, event_queue, job_env: dict, keys: Union[List[str], None] =
         except KeyError:
             logger.err("Could not delete missing key '{}' from the job environment".format(key))
         finally:
-            event_queue.put(ExecutionEvent(
-                'STAGE_PROGRESS',
-                job_id=logger.job_id,
-                stage_label=logger.stage_label,
-                percent=str(index/float(len(keys)))
-            ))
+            event_queue.put(
+                ExecutionEvent(
+                    "STAGE_PROGRESS",
+                    job_id=logger.job_id,
+                    stage_label=logger.stage_label,
+                    percent=str(index / float(len(keys))),
+                )
+            )
 
     return 0
 
 
-def write_file(logger, event_queue, contents: Any, dest_path: str, mode: str = 'w') -> int:
+def write_file(logger, event_queue, contents: Any, dest_path: str, mode: str = "w") -> int:
     """
     FunctionStage functor that writes the contents to a file.
     In case the file exists, the file is overwritten.
@@ -100,7 +102,7 @@ def yaml_dump_file(logger, event_queue, contents: Any, dest_path: str, dumper=ya
     :return: return code
     """
     mkdir_p(os.path.dirname(dest_path))
-    with open(dest_path, 'w') as f:
+    with open(dest_path, "w") as f:
         yaml.dump(contents, f, dumper)
 
     return 0

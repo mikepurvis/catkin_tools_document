@@ -32,113 +32,99 @@ def doxygen(conf, package, deps, doc_deps, output_path, source_path, docs_build_
     # for this suggestion: http://stackoverflow.com/a/35640905/109517
     return [
         FunctionStage(
-            'generate_doxygen_config', generate_doxygen_config,
+            "generate_doxygen_config",
+            generate_doxygen_config,
             conf=conf,
             package=package,
             recursive_build_deps=doc_deps,
             output_path=output_path,
             source_path=source_path,
-            docs_build_path=docs_build_path),
-        CommandStage(
-            'rosdoc_doxygen',
-            [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile')],
-            cwd=source_path),
+            docs_build_path=docs_build_path,
+        ),
+        CommandStage("rosdoc_doxygen", [which("doxygen"), os.path.join(docs_build_path, "Doxyfile")], cwd=source_path),
         FunctionStage(
-            'generate_doxygen_config_tags', generate_doxygen_config_tags,
+            "generate_doxygen_config_tags",
+            generate_doxygen_config_tags,
             conf=conf,
             package=package,
             output_path=output_path,
             source_path=source_path,
-            docs_build_path=docs_build_path),
+            docs_build_path=docs_build_path,
+        ),
         CommandStage(
-            'rosdoc_doxygen_tags',
-            [which('doxygen'), os.path.join(docs_build_path, 'Doxyfile_tags')],
-            cwd=source_path),
+            "rosdoc_doxygen_tags", [which("doxygen"), os.path.join(docs_build_path, "Doxyfile_tags")], cwd=source_path
+        ),
         # Filter the tags XML to remove user-defined references that may appear in multiple
         # packages (like "codeapi"), since they are not namespaced.
-        FunctionStage(
-            'filter_doxygen_tags', filter_doxygen_tags,
-            docs_build_path=docs_build_path)
+        FunctionStage("filter_doxygen_tags", filter_doxygen_tags, docs_build_path=docs_build_path),
     ]
 
 
 def sphinx(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
-    root_dir = os.path.join(source_path, conf.get('sphinx_root_dir', '.'))
-    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
+    root_dir = os.path.join(source_path, conf.get("sphinx_root_dir", "."))
+    output_dir = os.path.join(output_path, "html", conf.get("output_dir", ""))
 
-    rpp = os.environ['ROS_PACKAGE_PATH'].split(':')
+    rpp = os.environ["ROS_PACKAGE_PATH"].split(":")
     rpp.insert(0, source_path)
-    if os.path.isdir(os.path.join(source_path, 'src')):
-        rpp.insert(0, os.path.join(source_path, 'src'))
+    if os.path.isdir(os.path.join(source_path, "src")):
+        rpp.insert(0, os.path.join(source_path, "src"))
     env = {
-        'PATH': os.environ.get('PATH', ''),
-        'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
-        'ROS_PACKAGE_PATH': ':'.join(rpp),
-        'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
+        "PATH": os.environ.get("PATH", ""),
+        "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
+        "ROS_PACKAGE_PATH": ":".join(rpp),
+        "LD_LIBRARY_PATH": os.environ.get("LD_LIBRARY_PATH", ""),
     }
 
     return [
         FunctionStage(
-            'cache_sphinx_output',
+            "cache_sphinx_output",
             write_file,
             contents=output_dir,
-            dest_path=os.path.join(docs_build_path, output_dir_file('sphinx')),
+            dest_path=os.path.join(docs_build_path, output_dir_file("sphinx")),
         ),
         FunctionStage(
-            'job_env_set_intersphinx_mapping',
+            "job_env_set_intersphinx_mapping",
             generate_intersphinx_mapping,
             output_path=output_path,
             root_dir=root_dir,
             doc_deps=doc_deps,
             docs_build_path=docs_build_path,
-            job_env=job_env),
-        CommandStage(
-            'rosdoc_sphinx',
-            [which('sphinx-build'), '-E', root_dir, output_dir],
-            cwd=root_dir,
-            env=env),
-        FunctionStage(
-            'job_env_unset_intersphinx_mapping',
-            unset_env,
             job_env=job_env,
-            keys=['INTERSPHINX_MAPPING']),
+        ),
+        CommandStage("rosdoc_sphinx", [which("sphinx-build"), "-E", root_dir, output_dir], cwd=root_dir, env=env),
+        FunctionStage("job_env_unset_intersphinx_mapping", unset_env, job_env=job_env, keys=["INTERSPHINX_MAPPING"]),
     ]
 
 
 def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
-    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
+    output_dir = os.path.join(output_path, "html", conf.get("output_dir", ""))
 
     # TODO: Would be better to extract this information from the setup.py, but easier
     # for now to just codify an assumption of {pkg}/python, falling back to {pkg}/src.
-    src_dir = os.path.join(source_path, 'python')
+    src_dir = os.path.join(source_path, "python")
     if not os.path.isdir(src_dir):
-        src_dir = os.path.join(source_path, 'src')
+        src_dir = os.path.join(source_path, "src")
 
-    command = [which('pydoctor'), '--project-name', package.name, '--html-output', output_dir]
+    command = [which("pydoctor"), "--project-name", package.name, "--html-output", output_dir]
 
-    if 'config' in conf and 'epydoc' not in conf['config']:
-        command.extend(['--config', os.path.join(source_path, conf['config'])])
+    if "config" in conf and "epydoc" not in conf["config"]:
+        command.extend(["--config", os.path.join(source_path, conf["config"])])
 
     for subdir in os.listdir(src_dir):
         command.append(os.path.join(src_dir, subdir))
 
     # pydoctor returns error codes for minor issues we don't care about.
-    wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
+    wrapper_command = ["/bin/bash", "-c", "%s || true" % " ".join(command)]
 
     return [
+        FunctionStage("mkdir_pydoctor", makedirs, path=output_dir),
         FunctionStage(
-            'mkdir_pydoctor',
-            makedirs,
-            path=output_dir),
-        FunctionStage(
-            'cache_pydoctor_output',
+            "cache_pydoctor_output",
             write_file,
             contents=output_dir,
-            dest_path=os.path.join(docs_build_path, output_dir_file('pydoctor'))),
-        CommandStage(
-            'rosdoc_pydoctor',
-            wrapper_command,
-            cwd=src_dir)
+            dest_path=os.path.join(docs_build_path, output_dir_file("pydoctor")),
+        ),
+        CommandStage("rosdoc_pydoctor", wrapper_command, cwd=src_dir),
     ]
 
 
@@ -149,36 +135,26 @@ def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_p
         # If epydoc is missing, fall back to pydoctor.
         return pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env)
 
-    output_dir = os.path.join(output_path, 'html', conf.get('output_dir', ''))
+    output_dir = os.path.join(output_path, "html", conf.get("output_dir", ""))
 
-    command = [epydoc_exe, '--html', package.name, '-o', output_dir]
-    for s in conf.get('exclude', []):
-        command.extend(['--exclude', s])
+    command = [epydoc_exe, "--html", package.name, "-o", output_dir]
+    for s in conf.get("exclude", []):
+        command.extend(["--exclude", s])
 
-    if 'config' in conf:
-        command.extend(['--config', os.path.join(source_path, conf['config'])])
+    if "config" in conf:
+        command.extend(["--config", os.path.join(source_path, conf["config"])])
     else:
         # default options
-        command.extend(['--inheritance', 'included', '--no-private'])
+        command.extend(["--inheritance", "included", "--no-private"])
 
-    env = {
-        'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
-        'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')
-    }
+    env = {"PYTHONPATH": os.environ.get("PYTHONPATH", ""), "LD_LIBRARY_PATH": os.environ.get("LD_LIBRARY_PATH", "")}
 
     # Swallow errors from epydoc until we figure out a better story for Python 3.
-    wrapper_command = ['/bin/bash', '-c', '%s || true' % ' '.join(command)]
+    wrapper_command = ["/bin/bash", "-c", "%s || true" % " ".join(command)]
 
     return [
-        FunctionStage(
-            'mkdir_epydoc',
-            makedirs,
-            path=output_dir),
-        CommandStage(
-            'rosdoc_epydoc',
-            wrapper_command,
-            cwd=source_path,
-            env=env)
+        FunctionStage("mkdir_epydoc", makedirs, path=output_dir),
+        CommandStage("rosdoc_epydoc", wrapper_command, cwd=source_path, env=env),
     ]
 
 

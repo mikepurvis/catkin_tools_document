@@ -13,8 +13,8 @@
 # limitations under the License.
 
 description = dict(
-    default='docs',
-    short_flag='-z',
-    space='Docs Space',
-    description='Generated documentation files are placed in this location.'
+    default="docs",
+    short_flag="-z",
+    space="Docs Space",
+    description="Generated documentation files are placed in this location.",
 )
