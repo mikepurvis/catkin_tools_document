@@ -29,91 +29,99 @@ def _write_config(f, conf):
         f.write("%s = %s\n" % (k, v))
 
 
-def generate_doxygen_config(logger, event_queue, conf, package, recursive_build_deps,
-                            output_path, source_path, docs_build_path):
-    header_filename = ''
-    footer_filename = ''
-    output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
+def generate_doxygen_config(
+    logger, event_queue, conf, package, recursive_build_deps, output_path, source_path, docs_build_path
+):
+    header_filename = ""
+    footer_filename = ""
+    output_subdir = os.path.join("html", conf.get("output_dir", ""), "")
     output_dir = os.path.join(output_path, output_subdir)
     mkdir_p(output_dir)
 
     tagfiles = []
 
     # Add tags for the standard library.
-    cppreference_tagfile = pkg_resources.resource_filename('catkin_tools_document', 'external/cppreference-doxygen-web.tag.xml')
-    tagfiles.append('%s=%s' % (cppreference_tagfile, 'https://en.cppreference.com/w/'))
+    cppreference_tagfile = pkg_resources.resource_filename(
+        "catkin_tools_document", "external/cppreference-doxygen-web.tag.xml"
+    )
+    tagfiles.append("%s=%s" % (cppreference_tagfile, "https://en.cppreference.com/w/"))
 
     # Link up doxygen for all in-workspace build dependencies.
     for build_depend_name in recursive_build_deps:
-        depend_docs_tagfile = os.path.join(docs_build_path, '..', build_depend_name, 'tags')
+        depend_docs_tagfile = os.path.join(docs_build_path, "..", build_depend_name, "tags")
         if os.path.isfile(depend_docs_tagfile):
-            with open(os.path.join(docs_build_path, '..', build_depend_name, output_dir_file('doxygen'))) as f:
+            with open(os.path.join(docs_build_path, "..", build_depend_name, output_dir_file("doxygen"))) as f:
                 depend_output_dir = f.read()
             depend_docs_relative_path = os.path.relpath(depend_output_dir, output_dir)
-            tagfiles.append('%s=%s' % (depend_docs_tagfile, depend_docs_relative_path))
+            tagfiles.append("%s=%s" % (depend_docs_tagfile, depend_docs_relative_path))
 
-    mdfile = conf.get('use_mdfile_as_mainpage', '')
+    mdfile = conf.get("use_mdfile_as_mainpage", "")
     if mdfile:
         mdfile = os.path.join(source_path, mdfile)
 
     doxyfile_conf = copy.copy(_base_config)
-    doxyfile_conf.update({
-        'ALIASES': conf.get('aliases', ''),
-        'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
-        'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
-        'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
-        'FILE_PATTERNS': conf.get('file_patterns', doxyfile_conf['FILE_PATTERNS']),  # Use predefined values as default if not defined
-        'GENERATE_HTML': True,
-        'GENERATE_XML': True,
-        'SEARCHENGINE': True,
-        'HTML_FOOTER': footer_filename,
-        'HTML_HEADER': header_filename,
-        'HTML_OUTPUT': output_dir,
-        'IMAGE_PATH': conf.get('image_path', source_path),
-        'INPUT': " ".join([source_path, mdfile]),
-        'PROJECT_NAME': package.name,
-        'OUTPUT_DIRECTORY': output_path,
-        'TAB_SIZE': conf.get('tab_size', '8'),
-        'TAGFILES': ' '.join(tagfiles),
-        'USE_MATHJAX': True,
-        'USE_MDFILE_AS_MAINPAGE': mdfile
-    })
+    doxyfile_conf.update(
+        {
+            "ALIASES": conf.get("aliases", ""),
+            "EXAMPLE_PATTERNS": conf.get("example_patterns", ""),
+            "EXCLUDE_PATTERNS": conf.get("exclude_patterns", ""),
+            "EXCLUDE_SYMBOLS": conf.get("exclude_symbols", ""),
+            "FILE_PATTERNS": conf.get(
+                "file_patterns", doxyfile_conf["FILE_PATTERNS"]
+            ),  # Use predefined values as default if not defined
+            "GENERATE_HTML": True,
+            "GENERATE_XML": True,
+            "SEARCHENGINE": True,
+            "HTML_FOOTER": footer_filename,
+            "HTML_HEADER": header_filename,
+            "HTML_OUTPUT": output_dir,
+            "IMAGE_PATH": conf.get("image_path", source_path),
+            "INPUT": " ".join([source_path, mdfile]),
+            "PROJECT_NAME": package.name,
+            "OUTPUT_DIRECTORY": output_path,
+            "TAB_SIZE": conf.get("tab_size", "8"),
+            "TAGFILES": " ".join(tagfiles),
+            "USE_MATHJAX": True,
+            "USE_MDFILE_AS_MAINPAGE": mdfile,
+        }
+    )
 
-    with open(os.path.join(docs_build_path, 'Doxyfile'), 'w') as f:
+    with open(os.path.join(docs_build_path, "Doxyfile"), "w") as f:
         _write_config(f, doxyfile_conf)
     return 0
 
 
-def generate_doxygen_config_tags(logger, event_queue, conf, package,
-                                 output_path, source_path, docs_build_path):
-    output_subdir = os.path.join('html', conf.get('output_dir', ''), '')
+def generate_doxygen_config_tags(logger, event_queue, conf, package, output_path, source_path, docs_build_path):
+    output_subdir = os.path.join("html", conf.get("output_dir", ""), "")
     output_dir = os.path.join(output_path, output_subdir)
-    tagfile_path = os.path.join(docs_build_path, 'tags')
+    tagfile_path = os.path.join(docs_build_path, "tags")
 
     # This is a token to let dependent packages know what the subdirectory name is for linking
     # to this package's doxygen docs (since it isn't always "html").
-    with open(os.path.join(docs_build_path, output_dir_file('doxygen')), 'w') as f:
+    with open(os.path.join(docs_build_path, output_dir_file("doxygen")), "w") as f:
         f.write(output_dir)
 
     doxyfile_conf = copy.copy(_base_config)
 
-    doxyfile_conf.update({
-        'ALIASES': conf.get('aliases', ''),
-        'EXAMPLE_PATTERNS': conf.get('example_patterns', ''),
-        'EXCLUDE_PATTERNS': conf.get('exclude_patterns', ''),
-        'EXCLUDE_SYMBOLS': conf.get('exclude_symbols', ''),
-        'INPUT': source_path,
-        'PROJECT_NAME': package.name,
-        'GENERATE_TAGFILE': tagfile_path
-    })
+    doxyfile_conf.update(
+        {
+            "ALIASES": conf.get("aliases", ""),
+            "EXAMPLE_PATTERNS": conf.get("example_patterns", ""),
+            "EXCLUDE_PATTERNS": conf.get("exclude_patterns", ""),
+            "EXCLUDE_SYMBOLS": conf.get("exclude_symbols", ""),
+            "INPUT": source_path,
+            "PROJECT_NAME": package.name,
+            "GENERATE_TAGFILE": tagfile_path,
+        }
+    )
 
-    with open(os.path.join(docs_build_path, 'Doxyfile_tags'), 'w') as f:
+    with open(os.path.join(docs_build_path, "Doxyfile_tags"), "w") as f:
         _write_config(f, doxyfile_conf)
     return 0
 
 
 def filter_doxygen_tags(logger, event_queue, docs_build_path):
-    tagfile_path = os.path.join(docs_build_path, 'tags')
+    tagfile_path = os.path.join(docs_build_path, "tags")
     tree = etree.parse(tagfile_path)
     root = tree.getroot()
 
