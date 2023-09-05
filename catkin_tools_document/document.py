@@ -246,7 +246,6 @@ def document_workspace(
 
     # Construct jobs
     for pkg_path, pkg in packages_to_be_documented:
-
         # Get actual execution deps
         deps = [p.name for _, p in get_cached_recursive_build_depends_in_workspace(pkg, packages_to_be_documented)]
         doc_deps = [

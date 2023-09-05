@@ -129,7 +129,6 @@ def pydoctor(conf, package, deps, doc_deps, output_path, source_path, docs_build
 
 
 def epydoc(conf, package, deps, doc_deps, output_path, source_path, docs_build_path, job_env):
-
     epydoc_exe = which("epydoc")
     if epydoc_exe is None:
         # If epydoc is missing, fall back to pydoctor.
