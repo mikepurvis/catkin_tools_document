@@ -51,15 +51,13 @@ def generate_messages(logger, event_queue, package, package_path, output_path):
         with open(os.path.join(output_path, "msg/index.rst"), "w") as f:
             f.write("%s » Messages\n" % package.name)
             f.write("=" * 50 + "\n")
-            f.write(
-                """
+            f.write("""
             .. toctree::
                 :titlesonly:
                 :glob:
 
                 *
-            """
-            )
+            """)
 
         for msg_name in msg_names:
             msg_type = getattr(msg_module, msg_name)
@@ -85,15 +83,13 @@ def generate_services(logger, event_queue, package, package_path, output_path):
         with open(os.path.join(output_path, "srv/index.rst"), "w") as f:
             f.write("%s » Services\n" % package.name)
             f.write("=" * 50 + "\n")
-            f.write(
-                """
+            f.write("""
             .. toctree::
                 :titlesonly:
                 :glob:
 
                 *
-            """
-            )
+            """)
 
         for srv_name in srv_names:
             srv_type = getattr(srv_module, srv_name)
@@ -167,13 +163,11 @@ def generate_package_summary(logger, event_queue, package, package_path, rosdoc_
                 f.write("`%s <%s>`_ " % (rosdoc_name, rosdoc_link))
             f.write("\n\n")
 
-        f.write(
-            """
+        f.write("""
 .. toctree::
     :titlesonly:
 
-"""
-        )
+""")
         if os.path.isfile(os.path.join(output_path, "msg/index.rst")):
             f.write("    Messages <msg/index>\n")
         if os.path.isfile(os.path.join(output_path, "srv/index.rst")):
@@ -203,8 +197,7 @@ def generate_overall_summary(logger, event_queue, output_path):
             f.write("%s = %s\n" % (k, repr(v)))
 
     with open(os.path.join(output_path, "index.rst"), "w") as f:
-        f.write(
-            """
+        f.write("""
 Packages
 ========
 
@@ -214,6 +207,5 @@ Packages
     :glob:
 
     */index
-"""
-        )
+""")
     return 0

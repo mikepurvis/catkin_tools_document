@@ -21,7 +21,6 @@ from catkin_tools.execution.events import ExecutionEvent
 
 from .util import output_dir_file
 
-
 INTERSPHINX_GENERATORS = ["pydoctor", "sphinx"]
 
 
