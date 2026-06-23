@@ -17,7 +17,6 @@ from catkin_tools.argument_parsing import argument_preprocessor
 from .cli import main
 from .cli import prepare_arguments
 
-
 description = dict(
     verb="document",
     description="Build documentation for packages in a workspace.",
